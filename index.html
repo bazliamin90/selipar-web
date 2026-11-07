@@ -105,6 +105,16 @@ button:focus-visible{outline:2px solid var(--pandan);outline-offset:2px}
   body.two .controls{max-height:150px}
 }
 @media (pointer:coarse) and (orientation:landscape){body.two .rotate-hint{display:flex}}
+/* controller mode: touch controls step aside and the arena grows */
+body.pad .controls{display:none!important}
+body.pad .rotate-hint{display:none!important}
+body.pad .g2p2{transform:none!important}
+.padkeys{display:none}
+body.pad .padkeys{display:block}
+body.pad .keys:not(.padkeys){display:none}
+@media (pointer:coarse){body.pad{--stage:min(100%, 720px, max(220px, calc(100dvh - 140px)))}}
+@media (pointer:coarse) and (orientation:landscape){body.pad{--stage:min(720px, calc(100vw - 300px), calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)))}body.pad .padkeys{display:none}}
+.padfocus{outline:3px solid var(--pandan)!important;outline-offset:2px;position:relative;z-index:1}
 .ctarow{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
 .installbtn{position:absolute;top:6px;right:6px;z-index:2;font-family:var(--display);font-size:7px;word-spacing:-.32em;padding:7px 9px;color:var(--marigold);
   background:rgba(23,17,31,.85);border:2px solid var(--marigold);cursor:pointer;animation:selGlow 1.8s ease-in-out infinite}
@@ -270,6 +280,7 @@ body.g2 .controls .p-throw{animation:selGlow 1.4s ease-in-out infinite}
       <button class="cta alt" id="tomenu">CHANGE SNACK</button>
     </div>
   </div>
+  <div class="keys padkeys">Stick moves · <kbd>A</kbd> throw · <kbd>X</kbd> deflect &amp; hit · <kbd>B</kbd> dash · <kbd>START</kbd> pause</div>
   <div class="keys">Move <kbd>WASD</kbd> · Throw <kbd>J</kbd> · Deflect &amp; hit <kbd>K</kbd> · Dash <kbd>L</kbd></div>
   <div class="controls" id="controls">
     <div class="stick" id="stick"><div class="knob" id="knob"></div></div>
@@ -594,7 +605,7 @@ function resetRound(){
 function startMatch(){
   G.two=!!G.selTwo;const humans=G.two?[G.playerChar,G.p2Char]:[G.playerChar];
   const others=CHARS.map((_,i)=>i).filter(i=>!humans.includes(i)).sort(()=>Math.random()-.5).slice(0,G.selMode==='duel'?0:4-humans.length);const order=[...humans,...others];
-  document.body.classList.toggle('two',G.two);document.querySelector('.keys').innerHTML=G.two?KEYS2:KEYS1;
+  document.body.classList.toggle('two',G.two);document.querySelector('.keys:not(.padkeys)').innerHTML=G.two?KEYS2:KEYS1;
   G.demo=false;G.coop=G.two&&G.selMode==='coop';G.mode=G.coop?'teams':G.selMode;G.diff=G.selDiff;G.goldArena=Math.random()*PLAY_N|0;G.fighters=order.map((ci,i)=>{const f=newFighter(ci,i<humans.length,i);if(f.isPlayer)f.pn=i;return f;});if(G.coop)G.fighters.forEach(f=>f.team=f.isPlayer?0:1);G.round=0;buildHud();resetRound();
   let seen2=false;try{seen2=localStorage.getItem('sr-tut2')==='1';}catch(e){}if(G.two&&(G.forceGuide||!seen2))start2PGuide();G.forceGuide=false;
 }
@@ -736,9 +747,9 @@ function updFighter(f){
   if(f.dummy){['throwCD','inv','slashT','slashCD'].forEach(k=>{if(f[k]>0)f[k]--;});f.moving=false;f.vx=f.vy=0;return;}
   const act={throw:false,dash:false,slash:false,dir:null};let mx=0,my=0;
   if(f.isPlayer){const k=input.keys,ip=INP[f.pn||0];
-    if(G.two&&f.pn===1){mx=(k.arrowright?1:0)-(k.arrowleft?1:0)+ip.jx;my=(k.arrowdown?1:0)-(k.arrowup?1:0)+ip.jy;}
-    else if(G.two){mx=(k.d?1:0)-(k.a?1:0)+ip.jx;my=(k.s?1:0)-(k.w?1:0)+ip.jy;}
-    else{mx=(k.d||k.arrowright?1:0)-(k.a||k.arrowleft?1:0)+ip.jx;my=(k.s||k.arrowdown?1:0)-(k.w||k.arrowup?1:0)+ip.jy;}
+    if(G.two&&f.pn===1){mx=(k.arrowright?1:0)-(k.arrowleft?1:0)+ip.jx+(ip.gx||0);my=(k.arrowdown?1:0)-(k.arrowup?1:0)+ip.jy+(ip.gy||0);}
+    else if(G.two){mx=(k.d?1:0)-(k.a?1:0)+ip.jx+(ip.gx||0);my=(k.s?1:0)-(k.w?1:0)+ip.jy+(ip.gy||0);}
+    else{mx=(k.d||k.arrowright?1:0)-(k.a||k.arrowleft?1:0)+ip.jx+(ip.gx||0);my=(k.s||k.arrowdown?1:0)-(k.w||k.arrowup?1:0)+ip.jy+(ip.gy||0);}
     Object.assign(act,ip.q);ip.q={throw:false,dash:false,slash:false};}
   else{f.faceOverride=null;[mx,my]=ai(f,act);}
   if(f.confT>0){mx=-mx;my=-my;}
@@ -1046,6 +1057,9 @@ const DUMMY={name:'DUMMY',main:'#c9a46a',pal:{s:'#c9a46a',S:'#a8834a',r:'#e0453a
 const TUT_STEPS=['move','throw','catch','parry','dash'];
 const TUT_TITLE={move:'MOVE',throw:'THROW',catch:'CATCH',parry:'DEFLECT & HIT',dash:'DASH'};
 function tutText(k){const t=matchMedia('(pointer:coarse)').matches;
+  if(padMode)return{move:'Push the left stick to walk around.',throw:'Press A to fling your selipar at the dummy. Get close, it only flies so far.',
+    catch:'Your selipar always flies back to you. Throw it again and catch it.',parry:'Stand near the dummy. When its selipar flies at you, press X to knock it back.',
+    dash:'Press B to zip out of danger.'}[k];
   return{move:t?'Drag the joystick to walk around.':'Walk around with WASD or the arrow keys.',
     throw:(t?'Tap THROW':'Press J')+' to fling your selipar at the dummy. Get close, it only flies so far.',
     catch:'Your selipar always flies back to you. Throw it again and catch it.',
@@ -1054,7 +1068,7 @@ function tutText(k){const t=matchMedia('(pointer:coarse)').matches;
 function showTut(done){const T=G.tutorial,k=TUT_STEPS[T.i],bar=document.getElementById('tutbar');bar.classList.toggle('done',!!done);
   document.getElementById('tutStep').textContent=(T.i+1)+'/'+TUT_STEPS.length+' · '+TUT_TITLE[k]+(done?' · DONE':'');
   document.getElementById('tutTxt').textContent=done?(T.i===TUT_STEPS.length-1?"That's everything. Time to rumble!":'Nice one. Next up...'):tutText(k);}
-function startTutorial(){G.two=false;G.coop=false;document.body.classList.remove('two');document.querySelector('.keys').innerHTML=KEYS1;['menu','over','pause'].forEach(id=>document.getElementById(id).hidden=true);G.paused=false;
+function startTutorial(){G.two=false;G.coop=false;document.body.classList.remove('two');document.querySelector('.keys:not(.padkeys)').innerHTML=KEYS1;['menu','over','pause'].forEach(id=>document.getElementById(id).hidden=true);G.paused=false;
   G.demo=false;G.mode='ffa';G.diff='normal';G.tutorial={i:0,moved:0,flags:{},doneT:0,dx:150,dy:120};
   const p=newFighter(G.playerChar,true,0),d=newFighter(0,false,1);d.dummy=true;d.ch=DUMMY;G.fighters=[p,d];
   document.getElementById('hud').innerHTML='';G.round=0;resetRound();G.state='fight';G.pickT=1e9;
@@ -1075,16 +1089,17 @@ function updTutorial(){const T=G.tutorial,p=G.fighters[0],d=G.fighters[1];d.x=T.
 document.getElementById('tutSkip').onclick=()=>{sfx('pick');finishTutorial();};
 document.getElementById('howto').onclick=()=>{unlockAudio();if(G.selTwo){document.getElementById('menu').hidden=true;G.forceGuide=true;startMatch();}else startTutorial();};
 // ---- 2-player setup guide: shown before the first 2-player match, and from 2P GUIDE in the menu ----
-function start2PGuide(){const touch=matchMedia('(pointer:coarse)').matches;G.guide={ready:[false,false],t:0,touch};
+function start2PGuide(){const pads=padMode&&PADS.length>=2,touch=!pads&&matchMedia('(pointer:coarse)').matches;G.guide={ready:[false,false],t:0,touch,pads};
   const set=(id,t)=>document.getElementById(id).textContent=t;
-  if(touch){set('g2mid','LAY THE PHONE FLAT BETWEEN YOU');
+  if(pads){set('g2mid','ONE CONTROLLER EACH');[0,1].forEach(n=>{set('g2a'+n,'Controller '+(n+1)+' is yours.');set('g2b'+n,'Stick moves · A throw · X deflect & hit · B dash');});}
+  else if(touch){set('g2mid','LAY THE PHONE FLAT BETWEEN YOU');
     [0,1].forEach(n=>{set('g2a'+n,'This end is yours.');set('g2b'+n,'Use the controls on your edge.');});}
   else{set('g2mid','SHARE ONE KEYBOARD');
     set('g2a0','Left side of the keyboard.');set('g2b0','WASD move · J throw · K deflect · L dash');
     set('g2a1','Right side of the keyboard.');set('g2b1','Arrows move · , throw · . deflect · / dash');}
   document.getElementById('guide2').hidden=false;document.body.classList.add('g2');updGuide();}
 function updGuide(){const g=G.guide;[0,1].forEach(n=>{const e=document.getElementById('g2r'+n);e.classList.toggle('on',g.ready[n]);
-  e.textContent=g.ready[n]?'READY!':g.touch?'PRESS THROW WHEN READY':'PRESS '+(n?',':'J')+' WHEN READY';});}
+  e.textContent=g.ready[n]?'READY!':g.pads?'PRESS A WHEN READY':g.touch?'PRESS THROW WHEN READY':'PRESS '+(n?',':'J')+' WHEN READY';});}
 function guideTick(){const g=G.guide;for(const n of[0,1]){const ip=INP[n];if(ip.q.throw&&!g.ready[n]){g.ready[n]=true;sfx('catch');updGuide();}ip.q={throw:false,dash:false,slash:false};}
   if(g.ready[0]&&g.ready[1]&&++g.t>40)endGuide();}
 function endGuide(){G.guide=null;document.getElementById('guide2').hidden=true;document.body.classList.remove('g2');try{localStorage.setItem('sr-tut2','1');}catch(e){}sfx('go');}
@@ -1100,11 +1115,15 @@ document.getElementById('pRestart').onclick=()=>{setPause(false);G.fighters.forE
 document.getElementById('pQuit').onclick=()=>{setPause(false);document.getElementById('hud').innerHTML='';document.getElementById('menu').hidden=false;demo();};
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&canPause()&&!G.paused)setPause(true);});
 // ---- install as an app, and pick up new versions automatically ----
-const APP_VERSION='1.0';
-const isStandalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true||!!window.SeliparApp;
+const APP_VERSION='1.1';
+// running as an installed app? Installed web apps can report any of these display modes; the app's start link also carries ?source=app
+let launchedAsApp=/[?&]source=app\b/.test(location.search),justInstalled=false;
+try{if(launchedAsApp)sessionStorage.setItem('sr-app','1');else launchedAsApp=sessionStorage.getItem('sr-app')==='1';}catch(e){}
+const isStandalone=()=>launchedAsApp||justInstalled||!!window.SeliparApp||navigator.standalone===true||document.referrer.startsWith('android-app://')||
+  ['standalone','fullscreen','minimal-ui','window-controls-overlay'].some(m=>matchMedia('(display-mode: '+m+')').matches&&!(m==='fullscreen'&&!document.querySelector('link[rel="manifest"]')));
 let deferredInstall=null;
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;});
-addEventListener('appinstalled',()=>{deferredInstall=null;});
+addEventListener('appinstalled',()=>{deferredInstall=null;justInstalled=true;closeInstallHelp();});
 const installBtn=document.getElementById('installBtn');
 function installSteps(){const ua=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   return ios?'In Safari, tap the Share button, then Add to Home Screen.':/Android/.test(ua)?'In Chrome, tap the \u22ee menu, then Install app or Add to Home screen.'
@@ -1138,6 +1157,54 @@ window.srBack=()=>{if(!document.getElementById('installHelp').hidden){closeInsta
   if(G.tutorial){finishTutorial();return true;}if(G.guide){endGuide();return true;}
   if(!document.getElementById('over').hidden||(document.getElementById('menu').hidden&&!I.active)){document.getElementById('over').hidden=true;document.getElementById('hud').innerHTML='';document.getElementById('menu').hidden=false;demo();return true;}
   return false;};
+// ---- controllers: browser Gamepad API, or the Android app passing its controllers in ----
+// buttons as bits: A1 B2 X4 Y8 LB16 RB32 START64 SELECT128 UP256 DOWN512 LEFT1024 RIGHT2048
+const PADS=[],NPADS=[];let padMode=false,lastRoot=null,navHeld=null,navNext=0;
+window.srPadNative=(slot,lx,ly,m)=>{NPADS[slot]={lx:+lx||0,ly:+ly||0,m:m|0};};
+const GP_BITS=[[0,1],[1,2],[2,4],[3,8],[4,16],[5,32],[9,64],[8,128],[12,256],[13,512],[14,1024],[15,2048]];
+function readPads(){const out=[];
+  if(window.SeliparApp){NPADS.forEach(p=>{if(p)out.push({lx:p.lx,ly:p.ly,m:p.m});});return out;}
+  let gps=[];try{gps=navigator.getGamepads?[...navigator.getGamepads()]:[];}catch(e){}
+  for(const g of gps){if(!g||!g.connected)continue;let m=0;for(const[i,bit]of GP_BITS)if(g.buttons[i]&&g.buttons[i].pressed)m|=bit;out.push({lx:g.axes[0]||0,ly:g.axes[1]||0,m});}
+  return out;}
+function stickOf(p){let x=p.lx,y=p.ly;const d=Math.hypot(x,y);if(d<.22){x=0;y=0;}else{const k=Math.min(1,(d-.22)/.7)/d;x*=k;y*=k;}
+  x+=((p.m&2048)?1:0)-((p.m&1024)?1:0);y+=((p.m&512)?1:0)-((p.m&256)?1:0);return[Math.max(-1,Math.min(1,x)),Math.max(-1,Math.min(1,y))];}
+function uiRoot(){for(const id of['installHelp','pause','over','menu']){const e=document.getElementById(id);if(!e.hidden)return e;}return null;}
+function navList(root){return[...root.querySelectorAll('button')].filter(b=>!b.disabled&&b.offsetParent!==null&&b.getClientRects().length);}
+function defaultFocus(root,list){const id={menu:'go',pause:'pResume',over:'again',installHelp:'installClose'}[root.id];const e=id&&document.getElementById(id);return e&&list.includes(e)?e:list[0];}
+function focusPad(b){if(!b)return;document.querySelectorAll('.padfocus').forEach(e=>e.classList.remove('padfocus'));b.classList.add('padfocus');try{b.focus({preventScroll:true});}catch(_){}b.scrollIntoView({block:'nearest',inline:'nearest'});}
+function navMove(root,dx,dy){const list=navList(root);if(!list.length)return;const cur=document.querySelector('.padfocus');
+  if(!cur||!list.includes(cur)){focusPad(defaultFocus(root,list));return;}
+  const r=cur.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let best=null,bs=1e9;
+  for(const b of list){if(b===cur)continue;const q=b.getBoundingClientRect(),x=q.left+q.width/2-cx,y=q.top+q.height/2-cy,along=x*dx+y*dy;if(along<=4)continue;
+    const score=along+Math.abs(x*dy-y*dx)*2.4;if(score<bs){bs=score;best=b;}}
+  if(best){focusPad(best);sfx('bounce');}}
+function setPadMode(on){if(padMode===on)return;padMode=on;if(!on)document.querySelectorAll('.padfocus').forEach(e=>e.classList.remove('padfocus'));
+  if(G.tutorial&&!G.tutorial.doneT)showTut();}
+document.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'||e.pointerType==='mouse')setPadMode(false);},true);
+function pollPads(){const prev=PADS.slice();PADS.length=0;readPads().forEach((p,i)=>{p.pressed=p.m&~((prev[i]&&prev[i].m)||0);PADS.push(p);});
+  INP.forEach(ip=>{ip.gx=0;ip.gy=0;});
+  let any=0,dir=null;for(const p of PADS){any|=p.pressed;const[x,y]=stickOf(p);if(Math.abs(x)>.5||Math.abs(y)>.5){any|=1<<20;if(!dir)dir=Math.abs(x)>Math.abs(y)?[Math.sign(x),0]:[0,Math.sign(y)];}}
+  if(any)setPadMode(true);
+  document.body.classList.toggle('pad',padMode&&PADS.length>=(G.two?2:1));
+  if(!PADS.length)return;
+  const pressedAny=bit=>PADS.some(p=>p.pressed&bit);
+  if(I.active){if(pressedAny(1|64))introSkip();lastRoot=null;return;}
+  const root=uiRoot();
+  if(root){if(root!==lastRoot&&padMode)focusPad(defaultFocus(root,navList(root)));lastRoot=root;
+    const now=performance.now(),key=dir?dir.join(','):null;
+    if(key&&(key!==navHeld||now>=navNext)){navMove(root,dir[0],dir[1]);navNext=now+(key!==navHeld?380:150);}navHeld=key;
+    if(pressedAny(1)){const f=document.querySelector('.padfocus');if(f&&navList(root).includes(f))f.click();else focusPad(defaultFocus(root,navList(root)));}
+    if(pressedAny(2|128))srBack();
+    if(pressedAny(64)){if(root.id==='menu')document.getElementById('go').click();else if(root.id==='pause')setPause(false);else if(root.id==='over')document.getElementById('again').click();else closeInstallHelp();}
+    return;}
+  lastRoot=null;navHeld=null;
+  // in play: pad 1 drives player 1; in 2-player, pad 2 drives player 2
+  PADS.forEach((p,i)=>{const n=G.two?i:0;if(n>1)return;const ip=INP[n],[x,y]=stickOf(p);
+    if(Math.hypot(x,y)>Math.hypot(ip.gx,ip.gy)){ip.gx=x;ip.gy=y;}
+    if(p.pressed&(1|32))ip.q.throw=true;if(p.pressed&(4|8))ip.q.slash=true;if(p.pressed&(2|16))ip.q.dash=true;
+    if(p.pressed&64){if(canPause())setPause(true);}
+    if(p.pressed&128)srBack();});}
 const pick=document.getElementById('pick');
 CHARS.forEach((ch,i)=>{const b=document.createElement('button');b.type='button';b.setAttribute('aria-pressed',i===0);
   const c=document.createElement('canvas');c.width=20;c.height=22;miniSprite(c,i,2);
@@ -1160,7 +1227,7 @@ function setTwo(v){G.selTwo=v;if(G.p2Char===G.playerChar)G.p2Char=(G.playerChar+
   document.getElementById('howto').textContent=v?'2P GUIDE':'HOW TO PLAY';}
 document.querySelectorAll('#playerSeg button').forEach(b=>b.onclick=()=>{sfx('pick');setTwo(b.dataset.v==='2');});
 document.querySelectorAll('#pickSeg button').forEach(b=>b.onclick=()=>{sfx('pick');G.picker=+b.dataset.v;refreshPick();});
-const KEYS1=document.querySelector('.keys').innerHTML,KEYS2='P1 <kbd>WASD</kbd> <kbd>J</kbd><kbd>K</kbd><kbd>L</kbd> · P2 <kbd>ARROWS</kbd> <kbd>,</kbd><kbd>.</kbd><kbd>/</kbd>';
+const KEYS1=document.querySelector('.keys:not(.padkeys)').innerHTML,KEYS2='P1 <kbd>WASD</kbd> <kbd>J</kbd><kbd>K</kbd><kbd>L</kbd> · P2 <kbd>ARROWS</kbd> <kbd>,</kbd><kbd>.</kbd><kbd>/</kbd>';
 refreshPick();
 function unlockAudio(hold){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();sfxBus=AC.createGain();musBus=AC.createGain();
   sfxBus.connect(AC.destination);musBus.connect(AC.destination);applyAudio();}catch(e){AC=null;}}else if(AC.state==='suspended')AC.resume();if(AC&&!hold)startMusic();}
@@ -1170,7 +1237,7 @@ seg('diffSeg','selDiff');
 document.getElementById('tMus').onclick=()=>{unlockAudio();musicOn=!musicOn;applyAudio();};
 document.getElementById('tFx').onclick=()=>{unlockAudio();sfxOn=!sfxOn;applyAudio();};
 applyAudio();
-function demo(){if(G.guide){G.guide=null;document.getElementById('guide2').hidden=true;document.body.classList.remove('g2');}G.two=false;G.coop=false;document.body.classList.remove('two');document.querySelector('.keys').innerHTML=KEYS1;G.mode='ffa';G.diff='normal';G.fighters=CHARS.map((_,i)=>i).sort(()=>Math.random()-.5).slice(0,4).map((ci,i)=>newFighter(ci,false,i));G.round=0;G.demo=true;resetRound();G.state='fight';}
+function demo(){if(G.guide){G.guide=null;document.getElementById('guide2').hidden=true;document.body.classList.remove('g2');}G.two=false;G.coop=false;document.body.classList.remove('two');document.querySelector('.keys:not(.padkeys)').innerHTML=KEYS1;G.mode='ffa';G.diff='normal';G.fighters=CHARS.map((_,i)=>i).sort(()=>Math.random()-.5).slice(0,4).map((ci,i)=>newFighter(ci,false,i));G.round=0;G.demo=true;resetRound();G.state='fight';}
 document.getElementById('go').onclick=()=>{unlockAudio();document.getElementById('menu').hidden=true;startMatch();};
 document.getElementById('again').onclick=()=>{unlockAudio();document.getElementById('over').hidden=true;G.fighters.forEach(f=>f.score=0);G.round=0;updateHud();resetRound();};
 document.getElementById('tomenu').onclick=()=>{document.getElementById('over').hidden=true;document.getElementById('menu').hidden=false;document.getElementById('hud').innerHTML='';demo();};
@@ -1264,10 +1331,10 @@ buildStyles();
 demo();
 const mqLand=matchMedia('(pointer:coarse) and (orientation:landscape)');
 let last=performance.now(),acc=0;
-function loop(now){acc+=Math.min(100,now-last);last=now;
+function loop(now){acc+=Math.min(100,now-last);last=now;pollPads();
   while(acc>=1000/60){
     if(I.active)stepIntro();
-    else if(G.paused||(G.two&&mqLand.matches)){}
+    else if(G.paused||(G.two&&mqLand.matches&&!document.body.classList.contains('pad'))){}
     else if(G.guide)guideTick();
     else if(!(G.slow>0&&G.slow--%3!==0)){if(G.demo&&G.state==='intro')G.state='fight';step();}
     acc-=1000/60;}

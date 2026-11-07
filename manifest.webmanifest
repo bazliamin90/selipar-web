@@ -3,7 +3,7 @@
   "short_name": "Selipar",
   "description": "A pixel-art selipar brawler starring Malaysian snacks.",
   "id": "./",
-  "start_url": "./",
+  "start_url": "./?source=app",
   "scope": "./",
   "display": "fullscreen",
   "display_override": [
