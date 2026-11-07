@@ -1,4 +1,4 @@
-SELIPAR RUMBLE v1.2 - installable web app
+SELIPAR RUMBLE v1.3 - installable web app
 
 PUT IT ONLINE (free, about 2 minutes)
 1. Go to https://app.netlify.com/drop and drag this whole folder onto the page.
@@ -9,10 +9,11 @@ PUT IT ONLINE (free, about 2 minutes)
    - iPhone / iPad: follow the steps shown (Share, then Add to Home Screen).
 
 ONLINE PLAY
-Works from this website (and the Android app) over the internet: one player taps
-ONLINE > HOST A GAME and shares the room code or QR, the other taps JOIN A GAME.
+Up to 4 players, from this website or the Android app: one player taps ONLINE > HOST A GAME
+and shares the room code or QR, the others tap JOIN A GAME. No Wi-Fi? Everyone joins
+the host's phone hotspot.
 It uses the free PeerJS matchmaking service to introduce the two devices; after
-that they talk directly. Both players need the same game version.
+that they talk directly. Everyone needs the same game version.
 
 SHIPPING AN UPDATE
 1. In index.html change  const APP_VERSION='1.0';  to the new number (e.g. '1.1').
