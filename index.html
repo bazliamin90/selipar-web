@@ -138,6 +138,8 @@ body.pad .keys:not(.padkeys){display:none}
 body.netguest #pRestart{display:none}
 .seg.three{grid-template-columns:repeat(3,minmax(0,1fr))}
 .netslots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;width:100%;max-width:340px}
+#teamSeg button[data-v="0"][aria-pressed="true"]{border-color:#ff5a5f;color:#ff5a5f}
+#teamSeg button[data-v="1"][aria-pressed="true"]{border-color:#4fa3ff;color:#4fa3ff}
 .nslot{display:flex;flex-direction:column;align-items:center;gap:2px;padding:3px 2px;min-width:0;background:var(--stall);border:2px solid var(--edge);
   font-family:var(--display);font-size:6px;color:var(--dim);word-spacing:-.32em;cursor:default}
 .nslot b{font-size:6px;white-space:nowrap}
@@ -181,7 +183,7 @@ body.netguest #pRestart{display:none}
 .g2mid{flex:none}
 .g2mid span{font-family:var(--display);font-size:6px;line-height:1.5;color:var(--marigold);word-spacing:-.32em;text-align:center}
 @media (pointer:coarse){.g2p2{transform:rotate(180deg)}}
-.stage{container-type:size}
+.guide2{container-type:size}
 @container (max-height:330px){.g2half{gap:5px;padding:4px 8px}.g2txt{font-size:16px}}
 @container (max-height:270px){.g2txt.dim{display:none}.g2tag{font-size:9px}.g2ready{font-size:7px;padding:4px 8px}.g2mid span{font-size:5px}}
 body.g2 .controls .p-throw{animation:selGlow 1.4s ease-in-out infinite}
@@ -210,6 +212,8 @@ body.g2 .controls .p-throw{animation:selGlow 1.4s ease-in-out infinite}
   #menu .pick,#menu #pickRow,#menu .opts,#menu #modeDesc,#menu #blurb{max-width:none}
   #menu .pick canvas{width:30px;height:33px}
   #menu .pick span{font-size:7px}
+  #menu .pick span.long{font-size:6px}
+  #menu #blurb,#menu #modeDesc{font-size:16px}
 }
 .stick{width:136px;height:136px;border-radius:50%;background:var(--stall);border:3px solid var(--edge);position:relative;touch-action:none;flex:none}
 .knob{width:58px;height:58px;border-radius:50%;background:var(--dim);position:absolute;left:50%;top:50%;
@@ -299,6 +303,7 @@ body.g2 .controls .p-throw{animation:selGlow 1.4s ease-in-out infinite}
       <div class="opts">
         <div class="optrow" id="playerRow"><span>PLAYER</span><div class="seg three" id="playerSeg"><button type="button" data-v="1" aria-pressed="true">1P</button><button type="button" data-v="2" aria-pressed="false">2P</button><button type="button" data-v="net" aria-pressed="false">ONLINE</button></div></div>
         <div class="optrow"><span>MODE</span><div class="seg" id="modeSeg"><button type="button" data-v="ffa" aria-pressed="true">BRAWL</button><button type="button" data-v="teams" aria-pressed="false">2V2</button><button type="button" data-v="golden" aria-pressed="false">GOLDEN</button><button type="button" data-v="duel" aria-pressed="false" hidden>DUEL</button><button type="button" data-v="coop" aria-pressed="false" hidden>CO-OP</button></div></div>
+        <div class="optrow" id="teamRow" hidden><span>TEAM</span><div class="seg two-col" id="teamSeg"><button type="button" data-v="0" aria-pressed="false">RED</button><button type="button" data-v="1" aria-pressed="false">BLUE</button></div></div>
         <div class="optrow"><span>LEVEL</span><div class="seg" id="diffSeg"><button type="button" data-v="easy" aria-pressed="false">KACANG</button><button type="button" data-v="normal" aria-pressed="true">BIASA</button><button type="button" data-v="makcik" aria-pressed="false">NGERI</button></div></div>
         <div class="optrow"><span>STYLE</span><div class="seg five" id="styleSeg"></div></div>
       </div>
@@ -1219,7 +1224,7 @@ document.getElementById('pRestart').onclick=()=>{setPause(false);G.fighters.forE
 document.getElementById('pQuit').onclick=()=>{if(G.netGuest){netSend({t:'tolobby'});return;}if(G.online){setPause(false);netToLobby(true);return;}setPause(false);document.getElementById('hud').innerHTML='';document.getElementById('menu').hidden=false;demo();};
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&canPause()&&!G.paused)setPause(true);});
 // ---- install as an app, and pick up new versions automatically ----
-const APP_VERSION='1.3';
+const APP_VERSION='1.4';
 // running as an installed app? Installed web apps can report any of these display modes; the app's start link also carries ?source=app
 let launchedAsApp=/[?&]source=app\b/.test(location.search),justInstalled=false;
 try{if(launchedAsApp)sessionStorage.setItem('sr-app','1');else launchedAsApp=sessionStorage.getItem('sr-app')==='1';}catch(e){}
@@ -1417,6 +1422,7 @@ function netHostData(conn,m){if(!m||typeof m!=='object')return;let p=NET.peers.f
   if(m.t==='i'){if(ip){ip.nx=+m.x||0;ip.ny=+m.y||0;if(m.b&1)ip.q.throw=true;if(m.b&2)ip.q.slash=true;if(m.b&4)ip.q.dash=true;}}
   else if(m.t==='pick'){const c=(m.ch|0)%CHARS.length;if(!takenChars(p.pn).has(c))p.ch=c;p.cost=STYLES.includes(m.cost)?m.cost:'none';netLobbySync();}
   else if(m.t==='ready'){p.ready=!!m.v;netLobbySync();}
+  else if(m.t==='team'){const to=m.v?1:0;if(p.team!==to){if(teamCount(to)>=2)sendTo(conn,{t:'teamfull',v:to});else{p.team=to;sfx('pick');}}netLobbySync();}
   else if(m.t==='pause'){if(G.online){if(m.v){if(canPause()){G.pausedByNext=p.pn;setPause(true);}}else if(G.paused)setPause(false);}}
   else if(m.t==='rematch'){if(G.online&&!$('over').hidden)$('again').click();}
   else if(m.t==='tolobby'){if(G.online){if(G.paused)setPause(false);netToLobby(true);}}
@@ -1450,6 +1456,7 @@ function netGuestData(conn,m){if(!m||typeof m!=='object'||conn!==NET.conn)return
       :m.t==='full'?'That room is full (4 players).':'That room is in the middle of a match. Try again when it ends.';
     const code=NET.code;netReset();$('joinStatus').textContent='';$('netPanel').hidden=false;netView('netJoining');$('codeIn').value=code;netError(t);}
   else if(m.t==='lobby')netApplyLobby(m);
+  else if(m.t==='teamfull'){sfx('block');flash((m.v?'BLUE':'RED')+' TEAM IS FULL',1800);}
   else if(m.t==='start')netGuestStart(m);
   else if(m.t==='s'){NET.prev=NET.cur;NET.cur={s:m,at:performance.now()};netEvents(m.E);}
   else if(m.t==='over'){NET.over=m;$('wintxt').textContent=m.title;$('wintxt').style.color=m.col;$('winsub').textContent=m.sub;$('unlock').hidden=true;}
@@ -1457,7 +1464,15 @@ function netGuestData(conn,m){if(!m||typeof m!=='object'||conn!==NET.conn)return
   else if(m.t==='bye')netLeave('The host closed the room.');}
 
 // ---- lobby (the normal menu, shared) ----
-function netRenderSlots(){const box=$('netSlots');if(!netOnline()){box.hidden=true;return;}box.hidden=false;box.innerHTML='';
+// 2V2 online: every player picks RED or BLUE for themselves
+function netMyTeam(){if(NET.role==='host')return NET.hostTeam;const s=NET.slots.find(x=>x.pn===NET.myPn);return s?s.team:0;}
+function netRenderTeamRow(){const show=netOnline()&&G.selMode==='teams',row=$('teamRow');row.hidden=!show;if(!show)return;const t=netMyTeam();
+  document.querySelectorAll('#teamSeg button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.v===t));}
+function netPickTeam(to){if(to===netMyTeam())return;
+  if(NET.role==='host'){if(teamCount(to)>=2){sfx('block');flash((to?'BLUE':'RED')+' TEAM IS FULL',1800);return;}NET.hostTeam=to;sfx('pick');netLobbySync();}
+  else sendTo(NET.conn,{t:'team',v:to});}
+document.querySelectorAll('#teamSeg button').forEach(b=>b.onclick=()=>netPickTeam(+b.dataset.v));
+function netRenderSlots(){netRenderTeamRow();const box=$('netSlots');if(!netOnline()){box.hidden=true;return;}box.hidden=false;box.innerHTML='';
   const teams=G.selMode==='teams',me=NET.role==='host'?0:NET.myPn;
   for(let pn=0;pn<MAX_PLAYERS;pn++){const s=NET.slots.find(x=>x.pn===pn),b=document.createElement('button');b.type='button';b.className='nslot'+(pn===me?' me':'');
     b.style.borderColor=s?(teams?PCOL2[s.team]:PCOL2[pn]):'';
@@ -1481,7 +1496,7 @@ function netMenuState(){const on=netOnline(),m=$('menu');
   m.classList.toggle('online',on);m.classList.toggle('oguest',on&&NET.role==='guest');
   const nl=$('netLine');nl.hidden=!on;if(on)nl.textContent='ONLINE · ROOM '+NET.code+' · YOU ARE '+(NET.role==='host'?'P1 (HOST)':PN(NET.myPn));
   $('howto').textContent=on?'LEAVE ONLINE':(G.selTwo?'2P GUIDE':'HOW TO PLAY');
-  if(on){netRefreshPick();buildStyles();netRenderSlots();netModeLimits();}else{$('netSlots').hidden=true;$('go').textContent='FIGHT';}
+  if(on){netRefreshPick();buildStyles();netRenderSlots();netModeLimits();}else{$('netSlots').hidden=true;$('teamRow').hidden=true;$('go').textContent='FIGHT';}
   updDesc();}
 function netRefreshPick(){const owner=new Map(NET.slots.map(s=>[s.ch,s.pn])),mine=NET.role==='host'?G.playerChar:NET.myCh;
   pick.querySelectorAll('button').forEach((x,j)=>{x.setAttribute('aria-pressed',j===mine);x.classList.remove('p2sel');
@@ -1631,7 +1646,7 @@ const MODE_DESC_NET={ffa:'Everyone for themselves. Bots fill empty spots. First 
   golden:'Everyone chases the golden selipar. Bots fill empty spots.',duel:'P1 vs P2, no bots. First to 5.'};
 function updDesc(){netLobbySync();const d=document.getElementById('modeDesc');
   if(netOnline()){const n=netHumans();d.textContent=G.selMode==='coop'?(n>=3?'Everyone teams up against a big boss. First team to 5.':'You team up against the bots. First team to 5.')
-    :G.selMode==='teams'&&NET.role==='host'?'Red vs Blue. Tap a player above to swap teams. First team to 5.':MODE_DESC_NET[G.selMode];return;}
+    :G.selMode==='teams'?'Pick RED or BLUE. Bots fill empty spots. First to 5.':MODE_DESC_NET[G.selMode];return;}
   d.textContent=(G.selTwo?MODE_DESC2:MODE_DESC)[G.selMode];}
 function setTwo(v){G.selTwo=v;if(G.p2Char===G.playerChar)G.p2Char=(G.playerChar+1)%CHARS.length;if(!v)G.picker=0;
   document.getElementById('menu').classList.toggle('two',v);document.getElementById('pickRow').hidden=!v;document.getElementById('blurb').hidden=v;
@@ -1765,6 +1780,7 @@ document.fonts&&document.fonts.load('8px "Press Start 2P"').catch(()=>{});
 requestAnimationFrame(loop);
 })();
 </script>
+
 
 </body>
 </html>
