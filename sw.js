@@ -1,7 +1,7 @@
 // Selipar Rumble service worker.
 // To ship an update: change VERSION here and APP_VERSION in index.html, then upload both.
 // Players' browsers notice the changed file, download the new version, and the game switches over by itself.
-const VERSION='2.0';
+const VERSION='2.1';
 const CACHE='selipar-rumble-'+VERSION;
 const ASSETS=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./icon-maskable-512.png','./apple-touch-icon.png','./lib/peerjs.min.js','./lib/qrcode.js'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));});
