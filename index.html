@@ -322,7 +322,7 @@ body.g2 .controls .p-throw{animation:selGlow 1.4s ease-in-out infinite}
         <div class="optrow" id="teamRow" hidden><span>TEAM</span><div class="seg two-col" id="teamSeg"><button type="button" data-v="0" aria-pressed="false">RED</button><button type="button" data-v="1" aria-pressed="false">BLUE</button></div></div>
         <div class="optrow"><span>LEVEL</span><div class="seg" id="diffSeg"><button type="button" data-v="easy" aria-pressed="false">KACANG</button><button type="button" data-v="normal" aria-pressed="true">BIASA</button><button type="button" data-v="makcik" aria-pressed="false">NGERI</button></div></div>
         <div class="optrow"><span>STYLE</span><div class="seg five nine" id="styleSeg"></div></div>
-        <div class="optrow"><span>MUSIC</span><div class="seg four" id="musSeg"><button type="button" data-v="arcade" aria-pressed="true">ARCADE</button><button type="button" data-v="gamelan" aria-pressed="false">GAMELAN</button><button type="button" data-v="dikir" aria-pressed="false">DIKIR</button><button type="button" data-v="raya" aria-pressed="false">RAYA</button></div></div>
+        <div class="optrow"><span>MUSIC</span><div class="seg three" id="musSeg"><button type="button" data-v="arcade" aria-pressed="true">ARCADE</button><button type="button" data-v="gamelan" aria-pressed="false">GAMELAN</button><button type="button" data-v="dikir" aria-pressed="false">DIKIR</button><button type="button" data-v="raya" aria-pressed="false">RAYA</button><button type="button" data-v="seram" aria-pressed="false">SERAM</button><button type="button" data-v="hantu" aria-pressed="false">HANTU</button></div></div>
       </div>
       <p id="modeDesc">Last snack standing wins the round. First to 5.</p>
       <div class="ctarow"><button class="cta alt" id="howto" type="button">HOW TO PLAY</button><button class="cta" id="go" type="button">FIGHT</button></div>
@@ -645,7 +645,7 @@ function buildBg(A){
 const BGS=ARENAS.map(buildBg);
 
 // ---- audio ----
-let AC=null,sfxBus=null,musBus=null;
+let AC=null,sfxBus=null,musBus=null,musMaster=null;
 function tone(type,f1,f2,dur,vol,delay=0){if(!AC)return;const t=AC.currentTime+delay,o=AC.createOscillator(),g=AC.createGain();
   o.type=type;o.frequency.setValueAtTime(f1,t);o.frequency.exponentialRampToValueAtTime(Math.max(30,f2),t+dur);
   g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g).connect(sfxBus);o.start(t);o.stop(t+dur);}
@@ -739,30 +739,132 @@ function playDikir(i,t){const S=DK_STEP,bar=(i>>3)&7,k=i%8,sec=bar>>1,q=(sec>>1)
   if(i%16===0)gongHit(82.4,t,1.8,.1);}
 const DK_STEP=60/132/2;
 
-// RAYA: a lively joget in 6/8. Squeezebox tune, guitar-ish oom-pah, kompang slaps and a gendang underneath
-const RY_MEL=[67,-1,71,74,-1,71, 72,-1,71,69,-1,67, 69,-1,71,72,-1,74, 71,-1,-1,67,-1,-1, 67,-1,71,74,-1,76, 79,-1,78,76,-1,74, 72,-1,74,76,-1,72, 74,-1,-1,-1,0,0,
-  76,-1,76,74,-1,72, 71,-1,72,74,-1,71, 72,-1,72,71,-1,69, 67,-1,69,71,-1,-1, 74,-1,76,78,-1,79, 81,-1,79,78,-1,76, 74,-1,72,71,-1,69, 67,-1,-1,-1,0,0];
-const RY_CH=[[43,0],[48,0],[50,0],[43,0],[43,0],[48,0],[45,1],[50,0],[40,1],[43,0],[48,0],[43,0],[50,0],[50,0],[50,0],[43,0]];
-function playRaya(i,t){const S=RY_STEP,bar=(i/6|0)%16,k=i%6,[root,minor]=RY_CH[bar],tri=[0,minor?3:4,7];
-  const n=RY_MEL[i];if(n>0)accordion(mf(n),t,S*holdLen(RY_MEL,i)*.92,.035);
-  if(k===0)mo('triangle',mf(root),t,S*2.6,.1);if(k===3)mo('triangle',mf(root+7),t,S*2.6,.08);
-  if(k===1||k===2||k===4||k===5)for(const d of tri)mo('triangle',mf(root+24+d),t,S*.7,.022);
-  if(k===0||k===3)mo('sine',150,t,.16,.13,95);
-  if(k===2||k===5){nz(t,.06,.09,2200,'bandpass',1.8);mo('sine',620,t,.04,.03);}
-  if(k===1||k===4)nz(t,.04,.05,3200,'bandpass',2.5);
-  if(i%48===0)metal(mf(91),t,.6,.02);}
-const RY_STEP=.15;
+// ---- extra instrument kits (strings, squeezebox, chip voices, rebana, horror sounds) for the newer tracks ----
+function makeKit(ac,bus){
+  const mf=m=>440*2**((m-69)/12);
+  let NB=null;const nb=()=>{if(!NB){const n=ac.sampleRate|0;NB=ac.createBuffer(1,n,ac.sampleRate);const d=NB.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;}return NB;};
+  function mo(type,f,t,dur,vol,f2,dest){const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+dur);
+    g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol,t+.005);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g).connect(dest||bus);o.start(t);o.stop(t+dur+.03);}
+  function nz(t,dur,vol,fq,typ,q){const s=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();s.buffer=nb();f.type=typ||'highpass';f.frequency.value=fq;if(q)f.Q.value=q;
+    g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(f).connect(g).connect(bus);s.start(t,Math.random()*.5);s.stop(t+dur+.02);}
+  function sus(g,t,dur,vol,att){g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol,t+att);g.gain.setValueAtTime(vol,t+Math.max(att+.01,dur-.06));g.gain.exponentialRampToValueAtTime(.0001,t+dur+.06);}
+  // bowed string: buzzy saw, singer's vibrato that blooms in, softened top
+  function violin(m,t,dur,vol){const o=ac.createOscillator(),l=ac.createOscillator(),lg=ac.createGain(),lp=ac.createBiquadFilter(),pk=ac.createBiquadFilter(),g=ac.createGain(),f=mf(m);
+    o.type='sawtooth';o.frequency.setValueAtTime(f*.985,t);o.frequency.exponentialRampToValueAtTime(f,t+.05);
+    l.frequency.value=5.8;lg.gain.setValueAtTime(0,t);lg.gain.linearRampToValueAtTime(f*.012,t+Math.min(.35,dur*.6));l.connect(lg).connect(o.frequency);
+    lp.type='lowpass';lp.frequency.value=3200;pk.type='peaking';pk.frequency.value=1400;pk.gain.value=6;sus(g,t,dur,vol,.05);
+    o.connect(lp).connect(pk).connect(g).connect(bus);o.start(t);l.start(t);o.stop(t+dur+.1);l.stop(t+dur+.1);}
+  // squeezebox: two reeds a hair apart, bellows wobble
+  function accordion(m,t,dur,vol){const g=ac.createGain(),lp=ac.createBiquadFilter(),tr=ac.createOscillator(),tg=ac.createGain(),f=mf(m);lp.type='lowpass';lp.frequency.value=2600;
+    tr.frequency.value=6.2;tg.gain.value=vol*.22;tr.connect(tg).connect(g.gain);
+    for(const d of[-6,6]){const o=ac.createOscillator();o.type='square';o.frequency.value=f;o.detune.value=d;o.connect(lp);o.start(t);o.stop(t+dur+.08);}
+    sus(g,t,dur,vol,.02);lp.connect(g).connect(bus);tr.start(t);tr.stop(t+dur+.08);}
+  // chip voices
+  const pw={};function pulse(m,t,dur,vol,duty){duty=duty||.25;if(!pw[duty]){const n=32,re=new Float32Array(n),im=new Float32Array(n);for(let k=1;k<n;k++)im[k]=2/(k*Math.PI)*Math.sin(k*Math.PI*duty);pw[duty]=ac.createPeriodicWave(re,im);}
+    const o=ac.createOscillator(),g=ac.createGain();o.setPeriodicWave(pw[duty]);o.frequency.value=mf(m);sus(g,t,dur,vol,.004);o.connect(g).connect(bus);o.start(t);o.stop(t+dur+.08);}
+  const pluck=(m,t,dur,vol)=>{mo('triangle',mf(m),t,dur,vol);mo('sine',mf(m)*2,t,dur*.3,vol*.25);};
+  const dum=(t,v)=>mo('sine',110,t,.26,v,55), tak=(t,v)=>{mo('sine',360,t,.06,v*.5,230);nz(t,.05,v*.7,1500,'bandpass',2);},
+        pak=(t,v)=>{nz(t,.07,v,2300,'bandpass',1.6);mo('sine',640,t,.035,v*.3);}, bung=(t,v)=>mo('sine',180,t,.14,v,110),
+        shk=(t,v)=>nz(t,.035,v,6800), jingle=(t,v)=>{nz(t,.12,v,7500);nz(t+.02,.08,v*.6,9000);},
+        gong=(t,v)=>{mo('sine',82.4,t,2,v);mo('sine',83.4,t,2,v*.8);mo('sine',165,t,1,v*.25);},
+        clap=(t,v)=>{for(let j=0;j<3;j++)nz(t+j*.011,.05,v,1250,'bandpass',1.4);};
+  const hold=(seq,i)=>{let n=1;while(seq[(i+n)%seq.length]===-1&&n<24)n++;return n;};
+  return{mf,mo,nz,violin,accordion,pulse,pluck,dum,tak,pak,bung,shk,jingle,gong,clap,hold};}
 
-const TRACKS={arcade:{step:STEP,len:64,play:playStep},gamelan:{step:GAM_STEP,len:64,play:playGamelan},dikir:{step:DK_STEP,len:64,play:playDikir},raya:{step:RY_STEP,len:96,play:playRaya}};
-const TRACK_VOL={arcade:1,gamelan:.55,dikir:.5,raya:.5};
+// ---------- A: JOGET KLASIK (6/8, violin lead, accordion, rebana, kompang) ----------
+const A_MEL=[74,-1,72,71,72,74, 76,-1,-1,74,-1,-1, 72,-1,71,69,71,72, 74,-1,-1,0,0,67, 69,-1,71,72,-1,74, 71,-1,69,67,-1,64, 66,-1,67,69,-1,71, 69,-1,-1,-1,0,0,
+  74,-1,72,71,72,74, 79,-1,-1,78,-1,76, 74,-1,72,71,-1,72, 74,-1,-1,0,71,72, 74,-1,76,74,-1,72, 71,-1,69,67,-1,69, 71,-1,69,66,-1,69, 67,-1,-1,-1,0,0];
+const A_CH=[[43,0],[48,0],[48,0],[43,0],[50,0],[40,1],[50,0],[50,0],[43,0],[40,1],[48,0],[43,0],[48,0],[43,0],[50,0],[43,0]];
+function trackA(K){return{step:.155,len:96,play(i,t){const S=.155,bar=(i/6|0)%16,k=i%6,[r,mn]=A_CH[bar],tri=[0,mn?3:4,7];
+  const n=A_MEL[i];if(n>0)K.violin(n,t,S*K.hold(A_MEL,i)*.95,.06);
+  if(n>0&&bar>=8)K.accordion(n-12,t,S*K.hold(A_MEL,i)*.9,.012);
+  if(k===0)K.pluck(r,t,S*2.6,.12);if(k===3)K.pluck(r+7,t,S*2.6,.1);
+  if(k===1||k===2||k===4||k===5)for(const d of tri)K.accordion(r+24+d,t,S*.55,.008);
+  if(k===0||k===3)K.dum(t,.15);if(k===2||k===5)K.tak(t,.08);if(k===1||k===4)K.pak(t,.06);if(k===3)K.jingle(t,.03);K.shk(t,.018);
+  if(i%48===0)K.gong(t,.09);}};}
+
+function horrorKit(ac,bus,K){
+  const mf=K.mf;
+  function env(g,t,dur,vol,att,rel){g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol,t+att);g.gain.setValueAtTime(vol,t+Math.max(att+.01,dur-rel));g.gain.exponentialRampToValueAtTime(.0001,t+dur);}
+  // slightly warped music box: pure tone + glassy partial, detuned a little at random
+  function mbox(m,t,vol){const f=mf(m)*2**((Math.random()-.5)*.025);K.mo('sine',f,t,1.4,vol);K.mo('sine',f*4.02,t,.35,vol*.25);K.mo('sine',f*2,t,.6,vol*.2);}
+  // low drone: three detuned saws, dark and swelling
+  function drone(m,t,dur,vol){const g=ac.createGain(),lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.setValueAtTime(180,t);lp.frequency.linearRampToValueAtTime(420,t+dur/2);lp.frequency.linearRampToValueAtTime(180,t+dur);
+    for(const d of[-9,0,8]){const o=ac.createOscillator();o.type='sawtooth';o.frequency.value=mf(m);o.detune.value=d;o.connect(lp);o.start(t);o.stop(t+dur+.1);}env(g,t,dur,vol,dur*.3,dur*.3);lp.connect(g).connect(bus);}
+  // wind: filtered noise sweeping slowly
+  function wind(t,dur,vol){const s=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();const n=ac.sampleRate*dur|0,b=ac.createBuffer(1,n,ac.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;
+    s.buffer=b;f.type='bandpass';f.Q.value=6;f.frequency.setValueAtTime(400,t);for(let k=1;k<=6;k++)f.frequency.linearRampToValueAtTime(300+Math.random()*900,t+dur*k/6);env(g,t,dur,vol,dur*.25,dur*.3);s.connect(f).connect(g).connect(bus);s.start(t);}
+  // trembling strings
+  function trem(m,t,dur,vol){const o=ac.createOscillator(),g=ac.createGain(),a=ac.createGain(),l=ac.createOscillator(),lg=ac.createGain(),lp=ac.createBiquadFilter();o.type='sawtooth';o.frequency.value=mf(m);
+    l.frequency.value=13;lg.gain.value=.5;a.gain.value=.5;l.connect(lg).connect(a.gain);lp.type='lowpass';lp.frequency.value=2600;env(g,t,dur,vol,.08,.15);o.connect(lp).connect(a).connect(g).connect(bus);o.start(t);l.start(t);o.stop(t+dur+.1);l.stop(t+dur+.1);}
+  // ghostly choir "oo"
+  function choir(m,t,dur,vol){for(const d of[0,7,-5]){const o=ac.createOscillator(),l=ac.createOscillator(),lg=ac.createGain(),g=ac.createGain(),f=mf(m);o.type='sawtooth';o.frequency.value=f;o.detune.value=d;
+    l.frequency.value=4.6+Math.random();lg.gain.value=f*.01;l.connect(lg).connect(o.frequency);for(const[fq,a]of[[420,1],[800,.4]]){const bp=ac.createBiquadFilter(),ga=ac.createGain();bp.type='bandpass';bp.frequency.value=fq;bp.Q.value=5;ga.gain.value=a;o.connect(bp).connect(ga).connect(g);}
+    env(g,t,dur,vol,dur*.35,dur*.35);g.connect(bus);o.start(t);l.start(t);o.stop(t+dur+.1);l.stop(t+dur+.1);}}
+  // wooden creak
+  function creak(t,vol){const o=ac.createOscillator(),g=ac.createGain(),bp=ac.createBiquadFilter();o.type='sawtooth';o.frequency.setValueAtTime(38,t);o.frequency.linearRampToValueAtTime(55,t+.4);o.frequency.linearRampToValueAtTime(32,t+.9);
+    bp.type='bandpass';bp.frequency.value=900;bp.Q.value=8;env(g,t,1,vol,.05,.3);o.connect(bp).connect(g).connect(bus);o.start(t);o.stop(t+1.05);}
+  const heart=(t,v)=>{K.mo('sine',62,t,.18,v,40);K.mo('sine',58,t+.2,.2,v*.75,38);};
+  function thunder(t,vol){const s=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();const n=ac.sampleRate*3|0,b=ac.createBuffer(1,n,ac.sampleRate),d=b.getChannelData(0);let x=0;for(let i=0;i<n;i++){x=x*.97+(Math.random()*2-1)*.3;d[i]=x;}
+    s.buffer=b;f.type='lowpass';f.frequency.value=500;g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+3);s.connect(f).connect(g).connect(bus);s.start(t);}
+  function riser(t,dur,vol){const o=ac.createOscillator(),g=ac.createGain(),lp=ac.createBiquadFilter();o.type='sawtooth';o.frequency.setValueAtTime(110,t);o.frequency.exponentialRampToValueAtTime(1500,t+dur);lp.type='lowpass';lp.frequency.setValueAtTime(400,t);lp.frequency.exponentialRampToValueAtTime(5000,t+dur);
+    env(g,t,dur,vol,dur*.8,.05);o.connect(lp).connect(g).connect(bus);o.start(t);o.stop(t+dur+.05);}
+  return{mbox,drone,wind,trem,choir,creak,heart,thunder,riser};}
+
+// ---------- H1: KAMPUNG SERAM — a warped music-box lullaby in 3/4 over drone and wind ----------
+const H1_MEL=[76,-1,72,-1,69,-1, 71,-1,72,-1,74,-1, 72,-1,71,-1,68,-1, 69,-1,-1,-1,0,0, 76,-1,77,-1,76,-1, 74,-1,72,-1,71,-1, 72,-1,69,-1,65,-1, 64,-1,-1,-1,0,0,
+  81,-1,77,-1,76,-1, 74,-1,77,-1,76,-1, 72,-1,71,-1,69,-1, 68,-1,-1,-1,0,0, 76,-1,72,-1,69,-1, 70,-1,69,-1,68,-1, 69,-1,64,-1,63,-1, 69,-1,-1,-1,0,0];
+function trackH1(K,H){return{step:.3,len:96,play(i,t){const S=.3,bar=(i/6|0)%16,k=i%6;
+  const n=H1_MEL[i];if(n>0&&!(bar>=12&&Math.random()<.12))H.mbox(n+12,t,.07);
+  if(i===0){H.drone(33,t,S*48,.05);H.drone(40,t,S*48,.025);H.wind(t,S*48,.05);K.gong(t,.07);}
+  if(i===48){H.drone(29,t,S*48,.05);H.drone(36,t,S*48,.03);H.wind(t,S*48,.06);K.gong(t,.07);H.choir(57,t,S*12,.035);}
+  if(i===72)H.choir(56,t,S*12,.035);
+  if(k===0&&bar%4===2)H.creak(t+S*2.5,.05);
+  if(bar>=12&&(k===0||k===3))H.heart(t,.22);
+  if(k===0)K.mo('sine',K.mf(bar>=8?41:45),t,S*2,.06);}};}
+
+
+// ---------- HANTU: the chase (racing bass, rebana, heartbeat) played on 8-bit chips, with the ghost tune on top ----------
+const H3_MEL=[76,-1,-1,79,78,-1,76,-1, 75,-1,-1,-1,71,-1,-1,-1, 72,-1,-1,76,75,-1,72,-1, 71,-1,-1,-1,0,0,0,0,
+  69,-1,72,-1,76,-1,79,-1, 78,-1,75,-1,71,-1,-1,-1, 72,-1,71,-1,70,-1,69,-1, 71,-1,-1,-1,0,0,0,0,
+  83,-1,-1,82,83,-1,79,-1, 77,-1,-1,-1,76,-1,-1,-1, 81,-1,-1,79,77,-1,76,-1, 75,-1,-1,-1,0,0,0,0,
+  76,79,83,-1,82,-1,79,-1, 77,-1,76,-1,75,-1,-1,-1, 76,-1,72,-1,71,-1,70,-1, 71,-1,-1,-1,0,0,0,0];
+const HT_PROG=[[38,'m'],[38,'m'],[39,'M'],[37,'d'],[38,'m'],[39,'M'],[38,'m'],[37,'d'],[38,'m'],[38,'m'],[34,'M'],[33,'7'],[43,'m'],[33,'7'],[34,'M'],[33,'7']];
+const HT_OFF=[0,0,12,0,1,0,12,0,0,0,12,0,3,1,0,-2],HT_TRI={m:[0,3,7],M:[0,4,7],'7':[0,4,10],d:[0,3,6]};
+function trackHantu(K,H){return{step:.11,len:256,play(i,t){const S=.11,bar=i>>4,k=i&15,[r,q]=HT_PROG[bar],tri=HT_TRI[q];
+  const b=r+HT_OFF[k];K.mo('triangle',K.mf(b),t,S*.9,.12);K.pulse(b+12,t,S*.45,.012,.5);
+  if(bar>=2)K.pulse(r+24+tri[k%3],t,S*.6,.013,.125);
+  if(k===0||k===6||k===10)K.mo('sine',92,t,.16,.16,45);if(k===4||k===12)K.nz(t,.08,.07,1800,'bandpass',1.2);K.shk(t,k%2?.01:.018);
+  if(bar>=4&&bar<8){if(k===0||k===8)H.heart(t,.12);
+    if(k===0||k===8){const L=[[81,82],[81,80],[82,81],[80,79]][bar%4][k>>3];K.pulse(L,t,S*7.5,.04,.5);K.pulse(L+.12,t+.01,S*7.5,.02,.25);}}
+  if(bar>=8&&k%2===0){const j=(bar-8)*8+(k>>1),n=H3_MEL[j];if(n>0){const d=S*2*K.hold(H3_MEL,j)*.9;K.pulse(n-2,t,d,.04,.5);K.pulse(n-1.88,t+.01,d,.02,.25);}}
+  if(i===0||i===128)H.thunder(t,.28);
+  if((bar===7||bar===11)&&k===8)K.mo('square',K.mf(r+30),t,S*6,.02,K.mf(r+18));
+  if(bar===15&&k===8)K.mo('square',K.mf(r+12),t,S*8,.018,K.mf(r+48));}};}
+// kits follow whichever bus the current track is playing into
+let KIT=null;function kit(){if(!KIT||KIT.bus!==musBus){const K=makeKit(AC,musBus);KIT={bus:musBus,K,H:horrorKit(AC,musBus,K)};}return KIT;}
+const playRaya=(i,t)=>{const k=kit();trackA(k.K).play(i,t);};
+const playSeram=(i,t)=>{const k=kit();trackH1(k.K,k.H).play(i,t);};
+const playHantu=(i,t)=>{const k=kit();trackHantu(k.K,k.H).play(i,t);};
+const TRACKS={arcade:{step:STEP,len:64,play:playStep},gamelan:{step:GAM_STEP,len:64,play:playGamelan},dikir:{step:DK_STEP,len:64,play:playDikir},raya:{step:.155,len:96,play:playRaya},
+  seram:{step:.3,len:96,play:playSeram,echo:true},hantu:{step:.11,len:256,play:playHantu}};
+// music level per track, evened out so every track plays at the same (louder) level; a limiter on the output stops crackle
+const TRACK_VOL={arcade:6.2,gamelan:2.05,dikir:1.9,raya:1.8,seram:1.8,hantu:2.0},SFX_GAIN=2.2;
 const TRACK_NAME={arcade:'ARCADE',gamelan:'GAMELAN',dikir:'DIKIR BARAT',raya:'RAYA'};
-const TRACK_LINE={arcade:'Music: Arcade. Classic chiptune.',gamelan:'Music: Gamelan. Bronze gongs, bonang and kendang.',dikir:'Music: Dikir Barat. Call, answer, rebana and clapping.',raya:'Music: Raya. Joget with squeezebox and kompang.'};
+const TRACK_LINE={arcade:'Music: Arcade. Classic chiptune.',gamelan:'Music: Gamelan. Bronze gongs, bonang and kendang.',dikir:'Music: Dikir Barat. Call, answer, rebana and clapping.',raya:'Music: Raya. A classic joget with violin, accordion and rebana.',
+  seram:'Music: Seram. A creepy music-box lullaby in the dark kampung.',hantu:'Music: Hantu. An 8-bit ghost chase.'};
 let TRACK='arcade';try{TRACK=localStorage.getItem('sr-music')||'arcade';}catch(e){}if(!TRACKS[TRACK])TRACK='arcade';
-function setTrack(k){if(!TRACKS[k])return;TRACK=k;mStep=0;if(AC)mNext=Math.max(mNext,AC.currentTime+.05);try{localStorage.setItem('sr-music',k);}catch(e){}applyAudio();}
+// each track plays into its own bus; switching fades the old one out and (for Seram) adds a little echo
+function newMusBus(){if(!AC||!musMaster)return;const old=musBus;
+  if(old){const t=AC.currentTime;old.gain.setValueAtTime(old.gain.value,t);old.gain.linearRampToValueAtTime(0,t+.25);setTimeout(()=>{try{old.disconnect();}catch(e){}},600);}
+  musBus=AC.createGain();musBus.connect(musMaster);
+  if(TRACKS[TRACK].echo){const dl=AC.createDelay(),fb=AC.createGain(),lp=AC.createBiquadFilter(),wet=AC.createGain();dl.delayTime.value=.17;fb.gain.value=.35;lp.type='lowpass';lp.frequency.value=2500;wet.gain.value=.3;
+    musBus.connect(dl);dl.connect(lp).connect(fb).connect(dl);lp.connect(wet).connect(musMaster);}}
+function setTrack(k){if(!TRACKS[k])return;const ch=k!==TRACK;TRACK=k;mStep=0;if(ch)newMusBus();if(AC)mNext=Math.max(mNext,AC.currentTime+.05);try{localStorage.setItem('sr-music',k);}catch(e){}applyAudio();}
 function startMusic(){if(mTimer||!AC)return;const n=AC.sampleRate*.03|0;hatBuf=AC.createBuffer(1,n,AC.sampleRate);const d=hatBuf.getChannelData(0);
   for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);
   mNext=AC.currentTime+.1;mTimer=setInterval(()=>{try{while(mNext<AC.currentTime+.15){const tr=TRACKS[TRACK];if(mStep>=tr.len)mStep=0;tr.play(mStep,mNext);mNext+=tr.step;mStep=(mStep+1)%tr.len;}}catch(e){}},25);}
-function applyAudio(){if(musBus)musBus.gain.value=musicOn?.6*(TRACK_VOL[TRACK]||1):0;if(sfxBus)sfxBus.gain.value=sfxOn?1:0;
+function applyAudio(){if(musMaster)musMaster.gain.value=musicOn?(TRACK_VOL[TRACK]||1):0;if(sfxBus)sfxBus.gain.value=sfxOn?SFX_GAIN:0;
   const tm=document.getElementById('tMus'),tf=document.getElementById('tFx');tm.setAttribute('aria-pressed',musicOn);tf.setAttribute('aria-pressed',sfxOn);
   tm.textContent=musicOn?'MUSIC ON':'MUSIC OFF';tf.textContent=sfxOn?'SOUND ON':'SOUND OFF';
   try{localStorage.setItem('rr-audio',JSON.stringify({m:musicOn,s:sfxOn}));}catch(e){}}
@@ -1455,7 +1557,7 @@ document.getElementById('pRestart').onclick=()=>{setPause(false);G.fighters.forE
 document.getElementById('pQuit').onclick=()=>{if(G.netGuest)return;if(G.online){setPause(false);netToLobby(true);return;}setPause(false);document.getElementById('hud').innerHTML='';document.getElementById('menu').hidden=false;demo();};
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&canPause()&&!G.paused)setPause(true);});
 // ---- install as an app, and pick up new versions automatically ----
-const APP_VERSION='2.1';
+const APP_VERSION='2.2';
 // running as an installed app? Installed web apps can report any of these display modes; the app's start link also carries ?source=app
 let launchedAsApp=/[?&]source=app\b/.test(location.search),justInstalled=false;
 try{if(launchedAsApp)sessionStorage.setItem('sr-app','1');else launchedAsApp=sessionStorage.getItem('sr-app')==='1';}catch(e){}
@@ -1897,8 +1999,9 @@ document.querySelectorAll('#playerSeg button').forEach(b=>b.onclick=()=>{sfx('pi
 document.querySelectorAll('#pickSeg button').forEach(b=>b.onclick=()=>{sfx('pick');G.picker=+b.dataset.v;refreshPick();});
 const KEYS1=document.querySelector('.keys:not(.padkeys)').innerHTML,KEYS2='P1 <kbd>WASD</kbd> <kbd>J</kbd><kbd>K</kbd><kbd>L</kbd> · P2 <kbd>ARROWS</kbd> <kbd>,</kbd><kbd>.</kbd><kbd>/</kbd>';
 refreshPick();
-function unlockAudio(hold){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();sfxBus=AC.createGain();musBus=AC.createGain();
-  sfxBus.connect(AC.destination);musBus.connect(AC.destination);applyAudio();}catch(e){AC=null;}}else if(AC.state==='suspended')AC.resume();if(AC&&!hold)startMusic();}
+function unlockAudio(hold){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();sfxBus=AC.createGain();musMaster=AC.createGain();const lim=AC.createDynamicsCompressor();
+  lim.threshold.value=-12;lim.knee.value=8;lim.ratio.value=12;lim.attack.value=.003;lim.release.value=.25;lim.connect(AC.destination);
+  sfxBus.connect(lim);musMaster.connect(lim);newMusBus();applyAudio();}catch(e){AC=null;}}else if(AC.state==='suspended')AC.resume();if(AC&&!hold)startMusic();}
 function seg(id,key,cb){const bs=document.querySelectorAll('#'+id+' button');bs.forEach(b=>b.onclick=()=>{if(netIsGuest()&&(id==='modeSeg'||id==='diffSeg'))return;G[key]=b.dataset.v;bs.forEach(x=>x.setAttribute('aria-pressed',x===b));sfx('pick');cb&&cb();netLobbySync();});}
 seg('modeSeg','selMode',updDesc);
 seg('diffSeg','selDiff');
