@@ -66,6 +66,7 @@ body{background:var(--night);color:var(--ink);font-family:var(--body);font-size:
 .pick button[aria-pressed="true"]{border-color:var(--marigold);background:#33263f}
 .pick canvas{width:20px;height:22px;image-rendering:pixelated}
 .pick span{font-family:var(--display);font-size:6px;line-height:1.35;text-align:center;overflow-wrap:anywhere;max-width:100%}
+.seg button,.cta,.chip .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pick button{min-width:0}
 .menuL,.menuR{display:contents}
 .cta{font-family:var(--display);font-size:13px;padding:10px 22px;background:var(--marigold);color:var(--night);border:0;
@@ -79,36 +80,16 @@ button:focus-visible{outline:2px solid var(--pandan);outline-offset:2px}
 @media (pointer:coarse){.controls{display:flex}.keys{display:none}}
 :root{--p1:#ff5a5f;--p2:#4fa3ff}
 .seg.two-col{grid-template-columns:repeat(2,minmax(0,1fr))}
-#pickRow{width:100%;max-width:340px}
 .seg.four{grid-template-columns:repeat(4,minmax(0,1fr))}
 .seg.m5{grid-template-columns:repeat(5,minmax(0,1fr))}
 .pick button{position:relative}
 .pick button[data-tag]:not([data-tag=""])::after{content:attr(data-tag);position:absolute;top:2px;left:3px;font-family:var(--display);font-size:6px;color:var(--p1)}
-.pick button.p2sel::after{color:var(--p2)!important}
-#menu.two .pick button[aria-pressed="true"]{border-color:var(--p1)}
-.pick button.p2sel{border-color:var(--p2);background:#22304a}
-#pickSeg button[data-v="0"][aria-pressed="true"]{border-color:var(--p1);color:var(--p1)}
-#pickSeg button[data-v="1"][aria-pressed="true"]{border-color:var(--p2);color:var(--p2)}
 .chip.p1{border-color:var(--p1)}.chip.p2{border-color:var(--p2)}
-.controls.p2{display:none}
 .rotate-hint{display:none;position:fixed;inset:0;z-index:20;background:var(--night);color:var(--ink);align-items:center;justify-content:center;text-align:center;
   padding:24px max(24px, env(safe-area-inset-right, 0px)) 24px max(24px, env(safe-area-inset-left, 0px));font-family:var(--display);font-size:11px;line-height:1.8}
-/* 2-player on a phone lying flat: P2's controls along the top edge, facing them */
-@media (pointer:coarse){
-  body.two{--stage:min(100%, 560px, max(200px, calc(100dvh - 420px)))}
-  body.two .controls.p2{display:flex;order:-1;transform:rotate(180deg)}
-  body.two .brand b{display:none}
-  body.two .stick{width:112px;height:112px}
-  body.two .knob{width:48px;height:48px}
-  body.two .p-slash,body.two .p-dash{width:52px;height:52px}
-  body.two .p-throw{width:72px;height:72px}
-  body.two .controls{max-height:150px}
-}
-@media (pointer:coarse) and (orientation:landscape){body.two .rotate-hint{display:flex}}
 /* controller mode: touch controls step aside and the arena grows */
 body.pad .controls{display:none!important}
 body.pad .rotate-hint{display:none!important}
-body.pad .g2p2{transform:none!important}
 .padkeys{display:none}
 body.pad .padkeys{display:block}
 body.pad .keys:not(.padkeys){display:none}
@@ -131,7 +112,7 @@ body.pad .keys:not(.padkeys){display:none}
 .neterr{color:var(--chili)!important}
 .netok{color:var(--pandan)!important}
 .netline{margin:0;font-family:var(--display);font-size:7px;line-height:1.6;color:var(--pandan);word-spacing:-.32em;text-align:center}
-#menu.online #playerRow,#menu.online #pickRow,#menu.online #blurb{display:none}
+#menu.online #playerRow,#menu.online #blurb{display:none}
 #menu.oguest #modeSeg button,#menu.oguest #diffSeg button{pointer-events:none}
 #menu.oguest #modeSeg button:not([aria-pressed="true"]),#menu.oguest #diffSeg button:not([aria-pressed="true"]){opacity:.55}
 #menu.oguest #go{background:var(--stall);color:var(--dim);box-shadow:0 4px 0 #0c0811;animation:none}
@@ -170,24 +151,6 @@ body.netguest #pRestart{display:none}
 .tutbar b{font-family:var(--display);font-size:8px;color:var(--marigold);letter-spacing:.04em}
 .tutbar span{font-size:17px;line-height:1;color:var(--ink)}
 .tutbar.done b{color:var(--pandan)}
-/* 2-player setup guide: each half faces its player; on a phone the top half is turned round for P2 */
-.guide2{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;background:rgba(23,17,31,.95)}
-.g2half{flex:1 1 0;min-height:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:safe center;gap:7px;padding:6px 10px;text-align:center}
-.g2tag{font-family:var(--display);font-size:11px;word-spacing:-.32em}
-.g2p1 .g2tag{color:var(--p1)}.g2p2 .g2tag{color:var(--p2)}
-.g2txt{margin:0;font-size:17px;line-height:1.05;max-width:26ch;color:var(--ink)}
-.g2txt.dim{color:var(--dim)}
-.g2ready{font-family:var(--display);font-size:8px;word-spacing:-.32em;padding:5px 9px;border:2px solid var(--edge);color:var(--ink);background:var(--stall);animation:selGlow 1.6s ease-in-out infinite}
-.g2ready.on{border-color:var(--pandan);color:var(--pandan);animation:none}
-.g2mid{display:flex;align-items:center;justify-content:center;gap:8px;padding:5px 8px;background:var(--stall);border-block:2px solid var(--edge)}
-.g2mid{flex:none}
-.g2mid span{font-family:var(--display);font-size:6px;line-height:1.5;color:var(--marigold);word-spacing:-.32em;text-align:center}
-@media (pointer:coarse){.g2p2{transform:rotate(180deg)}}
-.guide2{container-type:size}
-@container (max-height:330px){.g2half{gap:5px;padding:4px 8px}.g2txt{font-size:16px}}
-@container (max-height:270px){.g2txt.dim{display:none}.g2tag{font-size:9px}.g2ready{font-size:7px;padding:4px 8px}.g2mid span{font-size:5px}}
-body.g2 .controls .p-throw{animation:selGlow 1.4s ease-in-out infinite}
-@media (prefers-reduced-motion:reduce){.g2ready,body.g2 .controls .p-throw{animation:none}}
 #pause h2{color:var(--marigold)}
 /* landscape phones: joystick left, buttons right, arena in the middle */
 @media (pointer:coarse) and (orientation:landscape){
@@ -209,10 +172,9 @@ body.g2 .controls .p-throw{animation:selGlow 1.4s ease-in-out infinite}
   #menu{position:fixed;inset:0;z-index:5;flex-direction:row;align-items:center;justify-content:center;gap:24px;background:var(--night);
     padding:12px max(20px, env(safe-area-inset-right, 0px)) 12px max(20px, env(safe-area-inset-left, 0px))}
   #menu .menuL,#menu .menuR{display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;min-width:0;max-width:380px}
-  #menu .pick,#menu #pickRow,#menu .opts,#menu #modeDesc,#menu #blurb{max-width:none}
+  #menu .pick,#menu .opts,#menu #modeDesc,#menu #blurb{max-width:none}
   #menu .pick canvas{width:30px;height:33px}
   #menu .pick span{font-size:7px}
-  #menu .pick span.long{font-size:6px}
   #menu #blurb,#menu #modeDesc{font-size:16px}
 }
 .stick{width:136px;height:136px;border-radius:50%;background:var(--stall);border:3px solid var(--edge);position:relative;touch-action:none;flex:none}
@@ -248,6 +210,7 @@ body.g2 .controls .p-throw{animation:selGlow 1.4s ease-in-out infinite}
 #itemGuide{position:fixed;inset:0;z-index:60;background:rgba(18,13,26,.97);overflow-y:auto;display:flex;justify-content:center;padding:16px}
 #itemGuide[hidden]{display:none}
 .igbox{width:100%;max-width:560px;display:flex;flex-direction:column;align-items:center;gap:10px;margin:auto 0}
+#igBack{position:sticky;bottom:6px;z-index:1}
 .igbox h2{font-family:var(--display);font-size:14px;color:var(--marigold);margin:0;text-shadow:2px 2px 0 var(--chili)}
 .igsub{color:var(--dim);font-size:15px;margin:0;text-align:center;line-height:1.1}
 #igList{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px;width:100%}
@@ -258,7 +221,7 @@ body.g2 .controls .p-throw{animation:selGlow 1.4s ease-in-out infinite}
 .ig span{display:block;font-size:15px;line-height:1.05;color:var(--ink,#f4ead8)}
 .ig em{font-style:normal;font-family:var(--display);font-size:6px;color:#ff5a5f;margin-left:4px}
 /* portrait phones: keep the whole menu, FIGHT included, on one screen */
-@media (orientation:portrait){#menu .seg button{padding:3px 2px}#musSeg{grid-template-columns:repeat(6,minmax(0,1fr))}#musSeg button{font-size:5px;padding:4px 0;letter-spacing:-.02em}}
+@media (orientation:portrait){#menu .seg button{padding:3px 2px}#musSeg{grid-template-columns:repeat(6,minmax(0,1fr))}#musSeg button{padding:4px 0}}
 #hostWait,.hostwait{font-family:var(--display);font-size:7px;color:var(--dim);margin:0}
 #awGo:disabled,#over button:disabled,#pQuit:disabled{opacity:.35;cursor:not-allowed}
 .opts{display:flex;flex-direction:column;gap:6px;width:100%;max-width:340px}
@@ -279,7 +242,6 @@ body.g2 .controls .p-throw{animation:selGlow 1.4s ease-in-out infinite}
 @keyframes selGlow2{0%,100%{box-shadow:0 0 0 0 rgba(79,163,255,0)}50%{box-shadow:0 0 9px 1px rgba(79,163,255,.6)}}
 @keyframes selSheen{0%{left:-70%}55%,100%{left:135%}}
 @media (prefers-reduced-motion:reduce){#menu button[aria-pressed="true"],#menu .pick button.p2sel,#menu button[aria-pressed="true"]::before,#menu .pick button.p2sel::before{animation:none}}
-.pick span.long{font-size:5px;white-space:nowrap}
 #menu .ctarow .cta{padding-block:8px}
 #menu .pick button{padding:3px 2px 2px}
 #blurb{max-width:none;width:100%;font-size:18px;line-height:1.1;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
@@ -314,16 +276,10 @@ body.g2 .controls .p-throw{animation:selGlow 1.4s ease-in-out infinite}
       <button class="cta" id="installClose" type="button">GOT IT</button>
     </div>
     <button class="pausebtn" id="tPause" type="button" aria-label="Pause" hidden><i></i><i></i></button>
-    <div class="guide2" id="guide2" hidden>
-      <div class="g2half g2p2"><b class="g2tag">PLAYER 2</b><p class="g2txt" id="g2a1"></p><p class="g2txt dim" id="g2b1"></p><div class="g2ready" id="g2r1"></div></div>
-      <div class="g2mid"><span id="g2mid"></span><button class="tog" id="g2skip" type="button">SKIP</button></div>
-      <div class="g2half g2p1"><b class="g2tag">PLAYER 1</b><p class="g2txt" id="g2a0"></p><p class="g2txt dim" id="g2b0"></p><div class="g2ready" id="g2r0"></div></div>
-    </div>
     <div class="tutbar" id="tutbar" hidden><div class="tt"><b id="tutStep">1/5 · MOVE</b><span id="tutTxt"></span></div><button class="tog" id="tutSkip" type="button">SKIP</button></div>
     <div class="overlay" id="menu" hidden>
       <h1>SELIPAR RUMBLE</h1>
       <div class="menuL">
-      <div class="optrow" id="pickRow" hidden><span>PICK</span><div class="seg two-col" id="pickSeg"><button type="button" data-v="0" aria-pressed="true">P1</button><button type="button" data-v="1" aria-pressed="false">P2</button></div></div>
       <p class="netline" id="netLine" hidden></p>
       <div class="netslots" id="netSlots" hidden></div>
       <p id="blurb">Fling your selipar, catch it coming back. One hit and you're out.</p>
@@ -331,8 +287,8 @@ body.g2 .controls .p-throw{animation:selGlow 1.4s ease-in-out infinite}
       </div>
       <div class="menuR">
       <div class="opts">
-        <div class="optrow" id="playerRow"><span>PLAYER</span><div class="seg three" id="playerSeg"><button type="button" data-v="1" aria-pressed="true">1P</button><button type="button" data-v="2" aria-pressed="false">2P</button><button type="button" data-v="net" aria-pressed="false">ONLINE</button></div></div>
-        <div class="optrow"><span>MODE</span><div class="seg" id="modeSeg"><button type="button" data-v="ffa" aria-pressed="true">BRAWL</button><button type="button" data-v="teams" aria-pressed="false">2V2</button><button type="button" data-v="golden" aria-pressed="false">GOLDEN</button><button type="button" data-v="duel" aria-pressed="false" hidden>DUEL</button><button type="button" data-v="coop" aria-pressed="false" hidden>CO-OP</button></div></div>
+        <div class="optrow" id="playerRow"><span>PLAYER</span><div class="seg two-col" id="playerSeg"><button type="button" data-v="1" aria-pressed="true">1P</button><button type="button" data-v="net" aria-pressed="false">ONLINE</button></div></div>
+        <div class="optrow"><span>MODE</span><div class="seg four" id="modeSeg"><button type="button" data-v="ffa" aria-pressed="true">BRAWL</button><button type="button" data-v="teams" aria-pressed="false">2V2</button><button type="button" data-v="golden" aria-pressed="false">GOLDEN</button><button type="button" data-v="duel" aria-pressed="false" hidden>DUEL</button><button type="button" data-v="coop" aria-pressed="false">CO-OP</button></div></div>
         <div class="optrow" id="teamRow" hidden><span>TEAM</span><div class="seg two-col" id="teamSeg"><button type="button" data-v="0" aria-pressed="false">RED</button><button type="button" data-v="1" aria-pressed="false">BLUE</button></div></div>
         <div class="optrow"><span>LEVEL</span><div class="seg" id="diffSeg"><button type="button" data-v="easy" aria-pressed="false">KACANG</button><button type="button" data-v="normal" aria-pressed="true">BIASA</button><button type="button" data-v="makcik" aria-pressed="false">NGERI</button></div></div>
         <div class="optrow"><span>STYLE</span><div class="seg five nine" id="styleSeg"></div></div>
@@ -369,6 +325,7 @@ body.g2 .controls .p-throw{animation:selGlow 1.4s ease-in-out infinite}
       <h2 id="wintxt">DURIAN WINS</h2>
       <p id="winsub">Final score</p>
       <p id="unlock" hidden></p>
+      <button class="cta" id="nextBoss" type="button" hidden>NEXT BOSS →</button>
       <button class="cta" id="again">REMATCH</button>
       <button class="cta alt" id="tomenu">CHANGE SNACK</button>
       <p id="hostWait" hidden>WAITING FOR HOST…</p>
@@ -384,13 +341,6 @@ body.g2 .controls .p-throw{animation:selGlow 1.4s ease-in-out infinite}
       <button class="pad p-throw" data-act="throw" aria-label="Throw">THROW</button>
     </div>
   </div>
-  <div class="controls p2" id="controls2">
-    <div class="stick"><div class="knob"></div></div>
-    <div class="btns">
-      <button class="pad p-slash" data-act="slash" aria-label="Player 2 deflect and hit">DEFLECT<br>&amp; HIT</button>
-      <button class="pad p-dash" data-act="dash" aria-label="Player 2 dash">DASH</button>
-      <button class="pad p-throw" data-act="throw" aria-label="Player 2 throw">THROW</button>
-    </div>
   </div>
   <div class="updtoast" id="updToast" role="status" hidden></div>
   <div class="netpanel" id="netPanel" hidden>
@@ -521,7 +471,8 @@ const BOMB_R=30,ARM_L=50,ARM_W=.02,TR_L=120;
 const KO_WORDS=['KENA SELIPAR!','TAPAU!','KENA!','HABIS!','SEDAP!','ALAMAK!','PADAN MUKA!','LOSE LIAO!','AIYOH!'];
 const CAUSE_WORDS={griddle:'KENA TEBAR!',train:'KENA LRT!',chicken:'KENA PATUK!',belacan:'BAU BELACAN!',kerepek:'RANGUP!',squish:'PENYEK!',durian:'KENA DURIAN!',fire:'HANGUS!',bike:'LANGGAR!',saga:'KENA SAGA!'};
 const DIFF={easy:{thr:.011,sl:.08,par:.15,dod:.06,err:.6,spd:.88},normal:{thr:.022,sl:.18,par:.35,dod:.16,err:.3,spd:1},makcik:{thr:.042,sl:.34,par:.6,dod:.3,err:.12,spd:1.12}};
-const MODE_DESC={ffa:'Last snack standing wins the round. First to 5.',teams:'You and an ally vs two rivals. First team to 5.',golden:'Hold the golden selipar for 20s to win. KOs respawn.'};
+const MODE_DESC={ffa:'Last snack standing wins the round. First to 5.',teams:'You and an ally vs two rivals. First team to 5.',golden:'Hold the golden selipar for 20s to win. KOs respawn.',
+  coop:'You and two allies gang up on a big boss. First team to 5.',duel:'One on one, no bots. First to 5.'};
 const GOLD_T=20;
 const foe=(a,b)=>a!==b&&(G.mode!=='teams'||a.team!==b.team);
 const sideOf=f=>G.mode==='teams'?f.team:f.idx;
@@ -947,19 +898,48 @@ function resetRound(){
     const tx=2+Math.random()*16|0,ty=2+Math.random()*16|0;if(solid(tx,ty))continue;const x=tx*T+6,y=ty*T+6;if(SPAWNS.some(q=>Math.hypot(q[0]*T-x,q[1]*T-y)<30))continue;
     G.chickens.push({x,y,col:cols[i],wt:0,wx:0,wy:0,vx:0,vy:0,run:0,angry:0,tgt:null,hitCD:0,face:1,moving:false});break;}}
   G.rain=A.style==='rain'?Array.from({length:60},()=>({x:Math.random()*W,y:Math.random()*H,s:3+Math.random()*2})):[];
-  G.fighters.forEach((f,i)=>{const s=(G.two?SP2:SPAWNS)[i]||freeSpawn(i);Object.assign(f,{x:s[0]*T,y:s[1]*T,alive:true,rangs:1,dashT:0,dashCD:0,slashT:0,slashCD:0,throwCD:0,
+  G.fighters.forEach((f,i)=>{const s=(G.two?SP2:SPAWNS)[i]||freeSpawn(i);Object.assign(f,{x:s[0]*T,y:s[1]*T,alive:true,rangs:1,hp:f.hpMax||f.hp,dashT:0,dashCD:0,slashT:0,slashCD:0,throwCD:0,
     multi:false,crocs:0,kerepek:false,speedT:0,shield:false,bigT:0,inv:0,moving:false,wt:0,wx:0,wy:0,strafe:1,tgt:null,unstick:0,lx:0,ly:0,
     fireT:0,passCD:0,confT:0,respawn:0,mvx:0,mvy:0,vx:0,vy:0,face:{x:s[0]<10?1:-1,y:0}});});
   G.state='intro';G.timer=110;
   if(TK.wasTut){TK.wasTut=false;tkReset();}
-  setTicker((G.mode==='golden'?'Golden':'Round '+G.round)+' · '+(A.label||A.name[0]+A.name.slice(1).toLowerCase()));
+  {const bf=G.fighters.find(f=>f.boss);
+   setTicker((G.mode==='golden'?'Golden':'Round '+G.round)+' · '+(bf?bossOf(bf).name+(G.coop&&!G.online?' · BOSS '+(G.bossIx+1)+'/'+BOSSES.length:''):(A.label||A.name[0]+A.name.slice(1).toLowerCase())));}
 }
-function startMatch(){kcStop();$('awards').hidden=true;
-  G.online=NET.role==='host'&&NET.state==='on';G.two=!!G.selTwo||G.online;const humans=G.two?[G.playerChar,G.p2Char]:[G.playerChar];
-  const others=CHARS.map((_,i)=>i).filter(i=>!humans.includes(i)).sort(()=>Math.random()-.5).slice(0,G.selMode==='duel'?0:4-humans.length);const order=[...humans,...others];
-  document.body.classList.toggle('two',G.two&&!G.online);document.querySelector('.keys:not(.padkeys)').innerHTML=G.two&&!G.online?KEYS2:KEYS1;
-  G.demo=false;G.coop=G.two&&G.selMode==='coop';G.mode=G.coop?'teams':G.selMode;G.diff=G.selDiff;G.goldArena=Math.random()*PLAY_N|0;G.fighters=order.map((ci,i)=>{const f=newFighter(ci,i<humans.length,i);if(f.isPlayer)f.pn=i;return f;});if(G.coop)G.fighters.forEach(f=>f.team=f.isPlayer?0:1);if(G.online)netBuildFighters();G.round=0;buildHud();resetRound();
-  let seen2=false;try{seen2=localStorage.getItem('sr-tut2')==='1';}catch(e){}if(G.two&&!G.online&&(G.forceGuide||!seen2))start2PGuide();G.forceGuide=false;
+// ---- bosses: three of them, each fighting its own way; in 1P co-op you climb the ladder ----
+const BOSSES=[
+ {ci:0,name:'RAJA DURIAN',short:'RAJA',hp:5,gap:190,tip:'Winds up, then sprays spikes all around. Keep your distance when it starts spinning.'},
+ {ci:1,name:'SULTAN SATAY',short:'SULTAN',hp:6,gap:230,tip:'Leaves hot coals that slow you down, and lobs durians at whoever is closest.'},
+ {ci:7,name:'MAKCIK KANTIN',short:'MAKCIK',hp:7,gap:210,tip:'Sends trays flying down the lanes. Step out of the lane before they arrive.'}];
+const bossOf=f=>BOSSES[f&&f.bossIx!=null?f.bossIx:0];
+let BOSS_BEST=0;try{BOSS_BEST=+(localStorage.getItem('sr-boss')||0)||0;}catch(e){}
+function setBossBest(n){if(n<=BOSS_BEST)return;BOSS_BEST=n;try{localStorage.setItem('sr-boss',String(n));}catch(e){}}
+function makeBoss(f,ix,hp){const B=BOSSES[ix]||BOSSES[0];f.boss=true;f.bossIx=ix;f.hpMax=f.hp=hp||B.hp;f.r=6;f.bz=B.gap;f.wind=0;return f;}
+function bossTick(f){const B=bossOf(f);
+  if(f.wind>0){f.wind--;
+    if(f.wind===0){
+      if(f.bossIx===0){sfx('boom');G.shake=reduce?0:6;
+        for(let i=0;i<16;i++){const a=i/16*TAU+Math.random()*.1;G.chips.push({x:f.x,y:f.y,vx:Math.cos(a)*2.9,vy:Math.sin(a)*2.9,life:26,owner:f,a});}}
+      else if(f.bossIx===1){const t=nearestEnemy(f);if(t)for(let i=0;i<2;i++){const x=Math.max(18,Math.min(222,t.x+(Math.random()*40-20))),y=Math.max(18,Math.min(222,t.y+(Math.random()*40-20)));
+        if(!solidAt(x,y)){G.drops.push({x,y,t:0,fall:70,owner:f});sfx('whistle');}}}
+      else{const t=nearestEnemy(f);if(t){const dir=t.x<120?-1:1;
+        G.bikes.push({y:Math.max(14,Math.min(226,t.y)),dir,x:dir>0?-16:256,warn:50,owner:f});
+        G.bikes.push({y:Math.max(14,Math.min(226,t.y+(Math.random()<.5?-26:26))),dir:-dir,x:dir>0?256:-16,warn:78,owner:f});sfx('honk');}}}
+    return;}
+  // the satay sultan drips coals wherever it walks
+  if(f.bossIx===1&&f.moving&&G.frame%26===0&&G.clouds.length<14)G.clouds.push({x:f.x,y:f.y,t:150});
+  if(--f.bz>0)return;
+  f.bz=B.gap+(Math.random()*60|0);f.wind=f.bossIx===0?26:18;
+  float(f.x,f.y-26,B.short+'!','#ffc23d',8);sfx(f.bossIx===0?'slow':'honk2');}
+function startMatch(){kcStop();$('awards').hidden=true;$('nextBoss').hidden=true;
+  G.online=NET.role==='host'&&NET.state==='on';G.two=G.online;const humans=[G.playerChar];
+  const soloBoss=G.selMode==='coop'&&!G.online?BOSSES[G.bossIx=Math.min(G.bossIx||0,BOSSES.length-1)]:null;
+  const others=CHARS.map((_,i)=>i).filter(i=>!humans.includes(i)&&(!soloBoss||i!==soloBoss.ci)).sort(()=>Math.random()-.5).slice(0,G.selMode==='duel'?0:4-humans.length);
+  const order=[...humans,...others];
+  G.demo=false;G.coop=G.selMode==='coop';G.mode=G.coop?'teams':G.selMode;G.diff=G.selDiff;G.goldArena=Math.random()*PLAY_N|0;G.fighters=order.map((ci,i)=>{const f=newFighter(ci,i<humans.length,i);if(f.isPlayer)f.pn=i;return f;});
+  if(G.coop&&!G.online){const last=G.fighters.length-1;G.fighters.forEach((f,i)=>{f.team=i===last?1:0;});
+    const b=G.fighters[last]=newFighter(soloBoss.ci,false,last);b.team=1;makeBoss(b,G.bossIx);}
+  if(G.online)netBuildFighters();G.round=0;buildHud();resetRound();
   G.fighters.forEach(f=>{f.cost=f.isPlayer?(f.pn===0?COST:(G.online?netCostOf(f.pn):'none')):'none';});
   if(G.online)netStartSend();
 }
@@ -1111,8 +1091,6 @@ function updFighter(f){
   const act={throw:false,dash:false,slash:false,dir:null};let mx=0,my=0;
   if(f.isPlayer){const k=input.keys,ip=INP[f.pn||0];
     if(G.online&&f.pn>0){mx=ip.nx||0;my=ip.ny||0;}
-    else if(G.two&&!G.online&&f.pn===1){mx=(k.arrowright?1:0)-(k.arrowleft?1:0)+ip.jx+(ip.gx||0);my=(k.arrowdown?1:0)-(k.arrowup?1:0)+ip.jy+(ip.gy||0);}
-    else if(G.two&&!G.online){mx=(k.d?1:0)-(k.a?1:0)+ip.jx+(ip.gx||0);my=(k.s?1:0)-(k.w?1:0)+ip.jy+(ip.gy||0);}
     else{mx=(k.d||k.arrowright?1:0)-(k.a||k.arrowleft?1:0)+ip.jx+(ip.gx||0);my=(k.s||k.arrowdown?1:0)-(k.w||k.arrowup?1:0)+ip.jy+(ip.gy||0);}
     Object.assign(act,ip.q);ip.q={throw:false,dash:false,slash:false};}
   else{f.faceOverride=null;[mx,my]=ai(f,act);}
@@ -1185,7 +1163,7 @@ function updHazards(){
       if(al.length&&Math.random()<.5){const t=rnd(al);x=t.x+(Math.random()-.5)*30;y=t.y+(Math.random()-.5)*30;}else{x=16+Math.random()*208;y=16+Math.random()*208;}
       if(!solidAt(x,y)){G.drops.push({x,y,t:0,fall:70});sfx('whistle');break;}}}
   for(const d of G.drops){d.t++;if(d.t===d.fall){G.shake=reduce?0:5;sfx('thud');burst(d.x,d.y,['#9ccc3f','#4d7a1f','#f2e29b'],14,2);
-      for(const f of G.fighters)if(f.alive&&Math.hypot(f.x-d.x,f.y-d.y)<10)hurt(f,'durian');}}
+      for(const f of G.fighters)if(f.alive&&f!==d.owner&&Math.hypot(f.x-d.x,f.y-d.y)<10)hurt(f,'durian',d.owner);}}
   G.drops=G.drops.filter(d=>d.t<d.fall+40);
   // uncle's motorbike
   for(const b of G.bikes){if(b.warn>0){b.warn--;if(b.warn===0)sfx('honk');continue;}
@@ -1230,6 +1208,7 @@ function updHazards(){
     for(const f of G.fighters)if(f.alive&&foe(c.owner,f)&&Math.hypot(f.x-c.x,f.y-c.y)<5){hurt(f,'kerepek',c.owner);c.life=0;break;}}
   G.chips=G.chips.filter(c=>c.life>0);
   // a Proton Saga cuts across the arena now and then. Everyone in its lane gets flattened, friend or foe
+  if(G.state==='fight')for(const f of G.fighters)if(f.boss&&f.alive)bossTick(f);
   if(!G.tutorial&&G.ai<PLAY_N){if(!G.saga){if(G.state==='fight'&&--G.sagaT<=0)sagaSpawn();}
     else{const s=G.saga;if(s.warn>0){s.warn--;if(s.warn===0)sfx('saga');else if(s.warn%26===0)sfx('honk2');}
       else{if(s.v)s.y+=s.dir*4.6;else s.x+=s.dir*4.6;
@@ -1423,13 +1402,19 @@ function buildHud(){const hud=document.getElementById('hud');hud.innerHTML='';hu
   G.fighters.forEach(f=>{const d=document.createElement('div');d.className='chip'+(G.online?netChipClass(f):G.two?(G.coop?(f.isPlayer?(f.pn?' p2':' p1'):' tb'):G.mode==='teams'?(f.team?' p2':' p1'):f.isPlayer?(f.pn?' p2':' p1'):''):(G.mode==='teams'?(f.team?' tb':' ta'):'')+(f.isPlayer?' you':''));
     const c=document.createElement('canvas');c.width=20;c.height=22;miniSprite(c,f.ci,2);
     const w=document.createElement('div');w.style.minWidth='0';
-    w.innerHTML=`<div class="nm" style="color:${f.ch.main}">${f.isPlayer?(pname(f)||'YOU'):f.boss?'BOSS':(f.wasPlayer&&f.pn!=null?'P'+(f.pn+1)+' BOT':f.ch.name)}</div><div class="pips">${'<i></i>'.repeat(5)}</div>`;
+    w.innerHTML=`<div class="nm" style="color:${f.ch.main}">${f.isPlayer?(pname(f)||'YOU'):f.boss?bossOf(f).short:(f.wasPlayer&&f.pn!=null?'P'+(f.pn+1)+' BOT':f.ch.name)}</div><div class="pips">${'<i></i>'.repeat(5)}</div>`;
     const v=document.createElement('span');v.className='val';d.append(c,w,v);hud.append(d);f.chip=d;f.val=v;});updateHud();}
 function updateHud(){const tg=winTarget();G.fighters.forEach(f=>{if(!f.chip)return;const n=Math.min(5,Math.floor(f.score/tg*5+1e-9));
   f.chip.querySelectorAll('.pips i').forEach((p,i)=>p.classList.toggle('on',i<n));if(f.val)f.val.textContent=G.mode==='golden'?Math.floor(f.score)+'s':'';});}
-function gameOver(f){G.state='over';sfx('win');const wt=document.getElementById('wintxt');let t,c=f.ch.main,sub;
+function gameOver(f){G.state='over';G.bossMore=false;sfx('win');const wt=document.getElementById('wintxt');let t,c=f.ch.main,sub;
   const tScore=t=>{const x=G.fighters.find(q=>q.team===t);return x?x.score:0;},boss=G.fighters.some(x=>x.boss),nh=G.fighters.filter(x=>x.pn!=null).length;
-  if(G.coop){const us=f.team===0;t=us?(nh>2?'YOU ALL WIN!':'YOU BOTH WIN!'):(boss?'THE BOSS WINS':'BOTS WIN');c=us?'#4fd1a0':'#ff5a5f';sub='Your team '+tScore(0)+' · '+(boss?'Boss ':'Bots ')+tScore(1);}
+  if(G.coop){const us=f.team===0,bn=boss?bossOf(G.fighters.find(x=>x.boss)).name:'Bots';
+    t=us?(nh>2?'YOU ALL WIN!':nh===2?'YOU BOTH WIN!':'YOUR TEAM WINS!'):(boss?bn+' WINS':'BOTS WIN');c=us?'#4fd1a0':'#ff5a5f';
+    sub='Your team '+tScore(0)+' · '+(boss?bn+' ':'Bots ')+tScore(1);
+    G.bossMore=false;
+    if(!G.online){const n=BOSSES.length;
+      if(us){const cleared=G.bossIx+1;setBossBest(cleared);sub+=' · BOSS '+cleared+'/'+n+(cleared>=n?' · ALL CLEARED!':'');G.bossMore=cleared<n;if(!G.bossMore)G.bossIx=0;}
+      else{sub+=' · BOSS '+(G.bossIx+1)+'/'+n+' · BEST '+BOSS_BEST+'/'+n;G.bossIx=0;}}}
   else if(G.mode==='teams'&&G.two){t=(f.team?'BLUE':'RED')+' TEAM WINS!';c=PCOL2[f.team];sub='Red '+tScore(0)+' · Blue '+tScore(1);}
   else if(G.mode==='teams'){const mine=f.team===0;t=mine?'YOUR TEAM WINS!':'RIVALS WIN';c=mine?'#4fd1a0':'#ff5a5f';
     sub='Your team '+G.fighters[0].score+' · Rivals '+G.fighters[1].score;}
@@ -1438,6 +1423,7 @@ function gameOver(f){G.state='over';sfx('win');const wt=document.getElementById(
   if(won){const want={shades:true,bandana:G.mode==='teams',towel:G.mode==='golden',songkok:G.diff==='makcik'};
     for(const k in want)if(want[k]&&!UNL[k]){UNL[k]=true;fresh.push(STYLE_NAME[k]);}}
   matchPlayed(fresh);
+  document.getElementById('nextBoss').hidden=!G.bossMore;
   wt.textContent=t;wt.style.color=c;document.getElementById('winsub').textContent=sub;
   const A=buildAwards();
   if(G.online){NET.over={t:'over',title:t,col:c,sub,A};netSend(NET.over);}
@@ -1445,7 +1431,7 @@ function gameOver(f){G.state='over';sfx('win');const wt=document.getElementById(
   const show=()=>{if(G.state!=='over')return;G.ovPh='aw';showAwards(A,()=>{G.ovPh='res';if(G.state==='over')document.getElementById('over').hidden=false;});};if(!kcStart(show))show();}
 // ---- end-of-match awards ----
 function ms(f){return f.ms||(f.ms={ko:0,dt:0,pa:0,th:0,hi:0,pk:0});}
-function awName(f){return f.boss?'BOSS':pname(f)||(G.online&&f.isPlayer?'P'+(f.pn+1):f.isPlayer?'YOU':'BOT');}
+function awName(f){return f.boss?bossOf(f).short:pname(f)||(G.online&&f.isPlayer?'P'+(f.pn+1):f.isPlayer?'YOU':'BOT');}
 function buildAwards(){const F=G.fighters.filter(f=>f.ms),out=[],acc=f=>f.ms.th?f.ms.hi/f.ms.th:0;
   const best=(score,ok)=>{let w=null;for(const f of F){if(ok&&!ok(f))continue;if(!w||score(f)>score(w)||(score(f)===score(w)&&f.ms.ko>w.ms.ko))w=f;}return w;};
   const add=(k,title,line,f,val)=>{if(f)out.push({k,title,line,who:awName(f),snack:f.ch.name,col:f.ch.main,val});};
@@ -1502,7 +1488,7 @@ function buildStyles(){const seg=document.getElementById('styleSeg');seg.innerHT
 // ---- kill cam: the last moments before the match-winning hit, replayed in slow motion ----
 const KC={ring:[],n:90,i:0,len:0,hit:-1,after:0,frozen:false,on:false,pos:0,acc:0,hold:0,last:0,zx:120,zy:120,lastF:-1,done:null};
 function kcReset(){Object.assign(KC,{i:0,len:0,hit:-1,after:0,frozen:false,lastF:-1});}
-function kcRecord(){if(KC.on||KC.frozen||G.demo||G.tutorial||G.guide||reduce||G.paused)return;if(G.state!=='fight'&&G.state!=='roundEnd')return;
+function kcRecord(){if(KC.on||KC.frozen||G.demo||G.tutorial||reduce||G.paused)return;if(G.state!=='fight'&&G.state!=='roundEnd')return;
   if(G.frame===KC.lastF)return;KC.lastF=G.frame;let c=KC.ring[KC.i];if(!c){c=KC.ring[KC.i]=document.createElement('canvas');c.width=W;c.height=H;}
   c.getContext('2d').drawImage(wc,0,0);KC.i=(KC.i+1)%KC.n;KC.len=Math.min(KC.n,KC.len+1);if(KC.hit>=0&&++KC.after>=26)KC.frozen=true;}
 function kcStart(done){if(KC.hit<0||KC.len<20||reduce)return false;Object.assign(KC,{on:true,frozen:true,done,pos:0,acc:0,hold:0,last:0,hitPos:KC.len-KC.after});return true;}
@@ -1559,26 +1545,11 @@ function updTutorial(){const T=G.tutorial,p=G.fighters[0],d=G.fighters[1];d.x=T.
   if(ok){const last=T.i===TUT_STEPS.length-1;T.doneT=last?110:60;sfx('gold');
     float(p.x,p.y-16,last?"YOU'RE READY!":rnd(['NICE!','BAGUS!','MANTAP!','POWER!']),'#ffd84a',8);showTut(true);}}
 document.getElementById('tutSkip').onclick=()=>{sfx('pick');finishTutorial();};
-document.getElementById('howto').onclick=()=>{unlockAudio();if(NET.state!=='off'){netLeave();return;}if(G.selTwo){document.getElementById('menu').hidden=true;G.forceGuide=true;startMatch();}else startTutorial();};
+document.getElementById('howto').onclick=()=>{unlockAudio();if(NET.state!=='off'){netLeave();return;}startTutorial();};
 // ---- 2-player setup guide: shown before the first 2-player match, and from 2P GUIDE in the menu ----
-function start2PGuide(){const pads=padMode&&PADS.length>=2,touch=!pads&&matchMedia('(pointer:coarse)').matches;G.guide={ready:[false,false],t:0,touch,pads};
-  const set=(id,t)=>document.getElementById(id).textContent=t;
-  if(pads){set('g2mid','ONE CONTROLLER EACH');[0,1].forEach(n=>{set('g2a'+n,'Controller '+(n+1)+' is yours.');set('g2b'+n,'Stick moves · A throw · X deflect & hit · B dash');});}
-  else if(touch){set('g2mid','LAY THE PHONE FLAT BETWEEN YOU');
-    [0,1].forEach(n=>{set('g2a'+n,'This end is yours.');set('g2b'+n,'Use the controls on your edge.');});}
-  else{set('g2mid','SHARE ONE KEYBOARD');
-    set('g2a0','Left side of the keyboard.');set('g2b0','WASD move · J throw · K deflect · L dash');
-    set('g2a1','Right side of the keyboard.');set('g2b1','Arrows move · , throw · . deflect · / dash');}
-  document.getElementById('guide2').hidden=false;document.body.classList.add('g2');updGuide();}
-function updGuide(){const g=G.guide;[0,1].forEach(n=>{const e=document.getElementById('g2r'+n);e.classList.toggle('on',g.ready[n]);
-  e.textContent=g.ready[n]?'READY!':g.pads?'PRESS A WHEN READY':g.touch?'PRESS THROW WHEN READY':'PRESS '+(n?',':'J')+' WHEN READY';});}
-function guideTick(){const g=G.guide;for(const n of[0,1]){const ip=INP[n];if(ip.q.throw&&!g.ready[n]){g.ready[n]=true;sfx('catch');updGuide();}ip.q={throw:false,dash:false,slash:false};}
-  if(g.ready[0]&&g.ready[1]&&++g.t>40)endGuide();}
-function endGuide(){G.guide=null;document.getElementById('guide2').hidden=true;document.body.classList.remove('g2');try{localStorage.setItem('sr-tut2','1');}catch(e){}sfx('go');}
-document.getElementById('g2skip').onclick=()=>{sfx('pick');endGuide();};
 // ---- pause ----
 const pauseBtn=document.getElementById('tPause');
-function canPause(){return !G.demo&&!G.tutorial&&!G.guide&&G.state!=='over'&&!I.active&&document.getElementById('menu').hidden;}
+function canPause(){return !G.demo&&!G.tutorial&&G.state!=='over'&&!I.active&&document.getElementById('menu').hidden;}
 function setPause(v){G.pausedBy=v?(G.pausedByNext||0):0;G.pausedByNext=0;
   {const pb=document.getElementById('pausedBy');if(pb)pb.textContent=v&&G.online?'P'+(G.pausedBy+1)+' PAUSED':'';}
   if(G.netGuest){if(!v||canPause())netSend({t:'pause',v:!!v});return;}if(v&&!canPause())return;G.paused=v;document.getElementById('pause').hidden=!v;input.q={throw:false,dash:false,slash:false};input.keys={};
@@ -1589,7 +1560,7 @@ document.getElementById('pRestart').onclick=()=>{setPause(false);G.fighters.forE
 document.getElementById('pQuit').onclick=()=>{if(G.netGuest)return;if(G.online){setPause(false);netToLobby(true);return;}setPause(false);document.getElementById('hud').innerHTML='';document.getElementById('menu').hidden=false;demo();};
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&canPause()&&!G.paused)setPause(true);});
 // ---- install as an app, and pick up new versions automatically ----
-const APP_VERSION='2.3';
+const APP_VERSION='2.5.3';
 // running as an installed app? Installed web apps can report any of these display modes; the app's start link also carries ?source=app
 let launchedAsApp=/[?&]source=app\b/.test(location.search),justInstalled=false;
 try{if(launchedAsApp)sessionStorage.setItem('sr-app','1');else launchedAsApp=sessionStorage.getItem('sr-app')==='1';}catch(e){}
@@ -1615,7 +1586,7 @@ const updToast=document.getElementById('updToast');let swWaiting=null,swReloadin
 function toast(t){updToast.textContent=t;updToast.hidden=false;}
 function applyUpdate(){if(!swWaiting)return;toast('UPDATING TO THE NEWEST VERSION...');
   if(swWaiting==='native')setTimeout(()=>{try{window.SeliparApp.reload();}catch(_){}},700);else swWaiting.postMessage('skip');swWaiting=null;}
-function updateReady(w){swWaiting=w||'native';if(canPause()||G.guide||G.tutorial)toast('NEW VERSION READY. IT INSTALLS AFTER THIS MATCH.');else applyUpdate();}
+function updateReady(w){swWaiting=w||'native';if(canPause()||G.tutorial)toast('NEW VERSION READY. IT INSTALLS AFTER THIS MATCH.');else applyUpdate();}
 if('serviceWorker' in navigator&&document.querySelector('link[rel="manifest"]')){
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(swReloading)return;swReloading=true;location.reload();});
   navigator.serviceWorker.register('sw.js').then(reg=>{
@@ -1628,7 +1599,7 @@ window.srUpdateReady=()=>updateReady(null);
 window.srPause=()=>{if(canPause()&&!G.paused)setPause(true);};
 window.srBack=()=>{if(!document.getElementById('itemGuide').hidden){document.getElementById('itemGuide').hidden=true;return true;}if(!document.getElementById('installHelp').hidden){closeInstallHelp();return true;}
   if(G.paused){setPause(false);return true;}if(canPause()){setPause(true);return true;}
-  if(G.tutorial){finishTutorial();return true;}if(G.guide){endGuide();return true;}
+  if(G.tutorial){finishTutorial();return true;}
   if(!document.getElementById('over').hidden||(document.getElementById('menu').hidden&&!I.active)){document.getElementById('over').hidden=true;document.getElementById('hud').innerHTML='';document.getElementById('menu').hidden=false;demo();return true;}
   return false;};
 // ---- controllers: browser Gamepad API, or the Android app passing its controllers in ----
@@ -1660,7 +1631,7 @@ function pollPads(){const prev=PADS.slice();PADS.length=0;readPads().forEach((p,
   INP.forEach(ip=>{ip.gx=0;ip.gy=0;});
   let any=0,dir=null;for(const p of PADS){any|=p.pressed;const[x,y]=stickOf(p);if(Math.abs(x)>.5||Math.abs(y)>.5){any|=1<<20;if(!dir)dir=Math.abs(x)>Math.abs(y)?[Math.sign(x),0]:[0,Math.sign(y)];}}
   if(any)setPadMode(true);
-  document.body.classList.toggle('pad',padMode&&PADS.length>=(G.two&&!G.online?2:1));
+  document.body.classList.toggle('pad',padMode&&PADS.length>=1);
   if(!PADS.length)return;
   const pressedAny=bit=>PADS.some(p=>p.pressed&bit);
   if(I.active){if(pressedAny(1|64))introSkip();lastRoot=null;return;}
@@ -1675,7 +1646,7 @@ function pollPads(){const prev=PADS.slice();PADS.length=0;readPads().forEach((p,
     return;}
   lastRoot=null;navHeld=null;
   // in play: pad 1 drives player 1; in 2-player, pad 2 drives player 2
-  PADS.forEach((p,i)=>{const n=G.two&&!G.online?i:0;if(n>1)return;const ip=INP[n],[x,y]=stickOf(p);
+  PADS.forEach((p,i)=>{if(i>0)return;const ip=INP[0],[x,y]=stickOf(p);
     if(Math.hypot(x,y)>Math.hypot(ip.gx,ip.gy)){ip.gx=x;ip.gy=y;}
     if(p.pressed&(1|32))ip.q.throw=true;if(p.pressed&(4|8))ip.q.slash=true;if(p.pressed&(2|16))ip.q.dash=true;
     if(p.pressed&64){if(canPause())setPause(true);}
@@ -1711,7 +1682,7 @@ const PN=pn=>'P'+(pn+1);
 // ---- panel ----
 function netView(v){['netHome','netHosting','netJoining'].forEach(id=>$(id).hidden=id!==v);$('netErr').hidden=true;$('netBack').textContent=v==='netHome'?'BACK':'CANCEL';}
 function netError(t){const e=$('netErr');e.textContent=t;e.hidden=false;sfx('block');}
-function openNet(view,code){unlockAudio();$('netPanel').hidden=false;
+function openNet(view,code){unlockAudio();$('netPanel').hidden=false;markPlayerRow();
   if(typeof RTCPeerConnection==='undefined'){netView('netHome');netError("Online play isn't available here. Open the game from its website or the app.");return;}
   if(view==='join'){netView('netJoining');$('codeIn').value=code||'';$('joinStatus').textContent='';if(code)netJoin(code);else setTimeout(()=>{try{$('codeIn').focus();}catch(_){}},50);}
   else netView('netHome');}
@@ -1732,7 +1703,7 @@ const HOTSPOT_TIP=" On mobile data? Join the host's phone hotspot instead.";
 async function netHost(){netReset();netView('netHosting');$('roomCode').textContent='......';$('qr').hidden=true;$('qrNote').hidden=true;
   $('hostStatus').className='';$('hostStatus').textContent='Getting a room ready...';
   try{await loadLib(LIBS.peer,()=>!!window.Peer);}catch(e){netError("Couldn't load online play. Check your internet and try again.");return;}
-  NET.role='host';NET.state='hosting';netOpenHostPeer(0);}
+  NET.role='host';NET.state='hosting';markPlayerRow();netOpenHostPeer(0);}
 function netOpenHostPeer(tries){const code=newCode(),peer=new Peer(PEER_PREFIX+code.toLowerCase(),netOpts());NET.peer=peer;
   peer.on('open',()=>{if(NET.peer!==peer)return;NET.code=code;$('roomCode').textContent=code;$('hostStatus').textContent='Waiting for friends to join (up to 3)...';drawQR(code);});
   peer.on('connection',conn=>{conn.on('data',d=>netHostData(conn,d));conn.on('close',()=>netPeerGone(conn));conn.on('error',()=>{});});
@@ -1747,7 +1718,7 @@ function drawQR(code){// inside the Android app the game runs from a private add
     for(let r=0;r<n;r++)for(let k=0;k<n;k++)if(q.isDark(r,k))x.fillRect(k+4,r+4,1,1);c.hidden=false;$('qrNote').hidden=false;}).catch(()=>{});}
 
 // ---- joining ----
-async function netJoin(raw){const code=normCode(raw);netReset();netView('netJoining');$('codeIn').value=code;
+async function netJoin(raw){const code=normCode(raw);netReset();netView('netJoining');markPlayerRow();$('codeIn').value=code;
   if(!/^[A-Z]+-\d{3}$/.test(code)){netError('Room codes look like SATAY-427.');return;}
   $('joinStatus').className='';$('joinStatus').textContent='Connecting...';
   try{await loadLib(LIBS.peer,()=>!!window.Peer);}catch(e){$('joinStatus').textContent='';netError("Couldn't load online play. Check your internet and try again.");return;}
@@ -1808,7 +1779,7 @@ function netAllReady(){return NET.peers.length>0&&NET.peers.every(p=>p.state==='
 function netHumans(){return NET.slots.filter(s=>s.on).length||1;}
 // switch off modes the current group can't play
 function netModeLimits(){if(!netOnline())return;const n=netHumans(),duel=document.querySelector('#modeSeg [data-v="duel"]');
-  duel.hidden=n!==2;document.getElementById('modeSeg').classList.toggle('m5',n===2);document.getElementById('modeSeg').classList.toggle('four',n!==2);
+  duel.hidden=n!==2;document.getElementById('modeSeg').classList.toggle('m5',n===2);document.getElementById('modeSeg').classList.toggle('four',n!==2);document.querySelector('#modeSeg [data-v="coop"]').hidden=false;
   if(NET.role==='host'&&G.selMode==='duel'&&n!==2){G.selMode='ffa';document.querySelectorAll('#modeSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v==='ffa'));updDesc();}}
 
 // ---- guest: messages from the host ----
@@ -1857,10 +1828,10 @@ function netGoLabel(){const go=$('go');if(!netOnline()){go.textContent='FIGHT';r
   const n=NET.peers.filter(p=>p.state==='on').length,r=NET.peers.filter(p=>p.state==='on'&&p.ready).length;go.textContent=!n?'WAITING...':r<n?'READY '+r+'/'+n:'FIGHT';}
 function netToggleReady(){NET.ready=!NET.ready;sfx(NET.ready?'gold':'pick');sendTo(NET.conn,{t:'ready',v:NET.ready});netGoLabel();}
 function netMenuState(){const on=netOnline(),m=$('menu');
-  if(on&&!G.selTwo)setTwo(true);
+  setOnline(on);markPlayerRow();
   m.classList.toggle('online',on);m.classList.toggle('oguest',on&&NET.role==='guest');
   const nl=$('netLine');nl.hidden=!on;if(on)nl.textContent='ONLINE · ROOM '+NET.code+' · YOU ARE '+(NET.role==='host'?'P1 (HOST)':PN(NET.myPn));
-  $('howto').textContent=on?'LEAVE ONLINE':(G.selTwo?'2P GUIDE':'HOW TO PLAY');
+  $('howto').textContent=on?'LEAVE ONLINE':'HOW TO PLAY';
   if(on){netRefreshPick();buildStyles();netRenderSlots();netModeLimits();}else{$('netSlots').hidden=true;$('teamRow').hidden=true;$('go').textContent='FIGHT';}
   updDesc();}
 function netRefreshPick(){const owner=new Map(NET.slots.map(s=>[s.ch,s.pn])),mine=NET.role==='host'?G.playerChar:NET.myCh;
@@ -1883,7 +1854,7 @@ function netGuestToLobby(){['over','pause','awards'].forEach(id=>$(id).hidden=tr
 function netLeave(msg){if(NET.state==='on')netSend({t:NET.role==='host'?'bye':'bye'});
   const conns=[NET.conn,...NET.peers.map(p=>p.conn)],peer=NET.peer;NET.conn=null;NET.peer=null;NET.peers=[];
   setTimeout(()=>{for(const c of conns){try{c&&c.close();}catch(_){}}try{peer&&peer.destroy();}catch(_){}},200);netReset();
-  closeNetPanel();['over','pause','awards'].forEach(id=>$(id).hidden=true);$('hud').innerHTML='';$('menu').hidden=false;setTwo(false);demo();netMenuState();
+  closeNetPanel();['over','pause','awards'].forEach(id=>$(id).hidden=true);$('hud').innerHTML='';$('menu').hidden=false;setOnline(false);demo();netMenuState();
   if(msg)flash(msg.toUpperCase(),4500);}
 
 // ---- match: host side ----
@@ -1891,12 +1862,12 @@ function netLeave(msg){if(NET.state==='on')netSend({t:NET.role==='host'?'bye':'b
 function netBuildFighters(){const hs=NET.slots.filter(s=>s.on).map(s=>({pn:s.pn,ch:s.ch,team:s.team}));
   const pool=CHARS.map((_,i)=>i).filter(i=>!hs.some(h=>h.ch===i)).sort(()=>Math.random()-.5);let list=[];
   if(G.selMode==='duel')list=hs.slice(0,2).map(h=>({h}));
-  else if(G.selMode==='coop'){list=hs.map(h=>({h,team:0}));if(hs.length>=3)list.push({team:1,boss:true});else for(let i=hs.length;i<4;i++)list.push({team:1});}
+  else if(G.selMode==='coop'){list=hs.map(h=>({h,team:0}));if(hs.length>=3){NET.bossIx=Math.random()*BOSSES.length|0;list.push({team:1,boss:true});}else for(let i=hs.length;i<4;i++)list.push({team:1});}
   else if(G.selMode==='teams'){const A=hs.filter(h=>h.team===0),B=hs.filter(h=>h.team===1);for(let i=0;i<2;i++){list.push(A[i]?{h:A[i],team:0}:{team:0});list.push(B[i]?{h:B[i],team:1}:{team:1});}}
   else{list=hs.map(h=>({h}));while(list.length<4)list.push({});}
   G.fighters=list.map((e,i)=>{const f=newFighter(e.h?e.h.ch:pool.shift(),!!e.h,i);if(e.h)f.pn=e.h.pn;if(e.team!=null)f.team=e.team;
-    if(e.boss){f.boss=true;f.hpMax=f.hp=hs.length*2-1;f.r=6;}return f;});}
-function netStartMsg(){return{t:'start',F:G.fighters.map(f=>[f.ci,f.isPlayer?1:0,f.pn==null?-1:f.pn,f.team,f.cost||'none',f.boss?1:0,f.hpMax||0]),md:G.mode,coop:!!G.coop,df:G.diff};}
+    if(e.boss)makeBoss(f,NET.bossIx,hs.length*2-1);return f;});}
+function netStartMsg(){return{t:'start',F:G.fighters.map(f=>[f.ci,f.isPlayer?1:0,f.pn==null?-1:f.pn,f.team,f.cost||'none',f.boss?1+(f.bossIx||0):0,f.hpMax||0]),md:G.mode,coop:!!G.coop,df:G.diff};}
 function netStartSend(){NET.rec=true;INP.forEach(ip=>{ip.nx=ip.ny=0;});netSend(netStartMsg());}
 function netSnap(){const fi=f=>G.fighters.indexOf(f);
   return{t:'s',st:G.state,tm:G.timer,rd:G.round,ai:G.ai,w:G.winner?fi(G.winner):-1,sl:G.slow,zx:r1(G.zx),zy:r1(G.zy),fl:G.flash,sh:G.shake,arm:+(G.armA||0).toFixed(3),
@@ -1916,8 +1887,8 @@ function netChipClass(f){if(G.mode==='teams'&&!G.coop)return f.team?' p2':' p1';
 
 // ---- match: guest side ----
 function netGuestStart(m){['menu','over','pause','installHelp','netPanel'].forEach(id=>$(id).hidden=true);
-  G.demo=false;G.online=true;G.netGuest=true;G.two=true;G.coop=!!m.coop;G.mode=m.md;G.diff=m.df;G.tutorial=null;G.guide=null;G.paused=false;
-  G.fighters=m.F.map((a,i)=>{const f=newFighter(a[0],!!a[1],i);if(a[2]>=0)f.pn=a[2];f.team=a[3];f.cost=a[4];if(a[5]){f.boss=true;f.hpMax=f.hp=a[6];f.r=6;}
+  G.demo=false;G.online=true;G.netGuest=true;G.two=true;G.coop=!!m.coop;G.mode=m.md;G.diff=m.df;G.tutorial=null;G.paused=false;
+  G.fighters=m.F.map((a,i)=>{const f=newFighter(a[0],!!a[1],i);if(a[2]>=0)f.pn=a[2];f.team=a[3];f.cost=a[4];if(a[5])makeBoss(f,a[5]-1,a[6]);
     return Object.assign(f,{rangs:1,inv:0,dashT:0,slashT:0,speedT:0,confT:0,moving:false});});
   Object.assign(G,{rangs:[],pickups:[],falls:[],bombs:[],chips:[],packs:[],parts:[],texts:[],debris:[],clouds:[],bikes:[],drops:[],chairs:[],chickens:[],
     train:null,saga:null,gold:null,slow:0,flash:0,state:'intro',round:-1,winner:null});
@@ -2010,29 +1981,24 @@ CHARS.forEach((ch,i)=>{const b=document.createElement('button');b.type='button';
   const c=document.createElement('canvas');c.width=20;c.height=22;miniSprite(c,i,2);
   const s=document.createElement('span');s.textContent=ch.short||ch.full||ch.name;if(s.textContent.length>8)s.className='long';s.style.color=ch.main;b.append(c,s);
   b.onclick=()=>pickChar(i);pick.append(b);});
-G.p2Char=1;G.picker=0;G.selTwo=false;
-function refreshPick(){if(netOnline()){netRefreshPick();return;}pick.querySelectorAll('button').forEach((x,j)=>{x.setAttribute('aria-pressed',j===G.playerChar);x.classList.toggle('p2sel',G.selTwo&&j===G.p2Char);
-    x.dataset.tag=G.selTwo?(j===G.playerChar?'P1':j===G.p2Char?'P2':''):'';});
-  document.querySelectorAll('#pickSeg button').forEach(b=>{const n=+b.dataset.v,ch=CHARS[n?G.p2Char:G.playerChar];b.textContent='P'+(n+1)+' · '+(ch.short||ch.full||ch.name);b.setAttribute('aria-pressed',G.picker===n);});}
-function pickChar(i){if(NET.state!=='off'){netPickChar(i);return;}if(G.selTwo&&G.picker===1){if(i===G.playerChar)G.playerChar=G.p2Char;G.p2Char=i;}else{if(G.selTwo&&i===G.p2Char)G.p2Char=G.playerChar;G.playerChar=i;}
-  sfx('pick');refreshPick();buildStyles();}
-const MODE_DESC2={ffa:'P1 vs P2 vs two bots. Last snack standing wins. First to 5.',teams:'P1 and a bot vs P2 and a bot. First team to 5.',
-  golden:'Both players and two bots fight over the golden selipar.',duel:'P1 vs P2, no bots. First to 5.',coop:'P1 and P2 team up against two bots. First team to 5.'};
+function refreshPick(){if(netOnline()){netRefreshPick();return;}
+  pick.querySelectorAll('button').forEach((x,j)=>{x.setAttribute('aria-pressed',j===G.playerChar);x.classList.remove('p2sel');x.dataset.tag='';delete x.dataset.p;});}
+function pickChar(i){if(NET.state!=='off'){netPickChar(i);return;}G.playerChar=i;sfx('pick');refreshPick();buildStyles();}
 const MODE_DESC_NET={ffa:'Everyone for themselves. Bots fill empty spots. First to 5.',teams:'Red vs Blue, two per team. Bots fill gaps. First team to 5.',
   golden:'Everyone chases the golden selipar. Bots fill empty spots.',duel:'P1 vs P2, no bots. First to 5.'};
 function updDesc(){netLobbySync();const d=document.getElementById('modeDesc');
   if(netOnline()){const n=netHumans();d.textContent=G.selMode==='coop'?(n>=3?'Everyone teams up against a big boss. First team to 5.':'You team up against the bots. First team to 5.')
     :G.selMode==='teams'?'Pick RED or BLUE. Bots fill empty spots. First to 5.':MODE_DESC_NET[G.selMode];return;}
-  d.textContent=(G.selTwo?MODE_DESC2:MODE_DESC)[G.selMode];}
-function setTwo(v){G.selTwo=v;if(G.p2Char===G.playerChar)G.p2Char=(G.playerChar+1)%CHARS.length;if(!v)G.picker=0;
-  document.getElementById('menu').classList.toggle('two',v);document.getElementById('pickRow').hidden=!v;document.getElementById('blurb').hidden=v;
-  ['duel','coop'].forEach(m=>document.querySelector('#modeSeg [data-v="'+m+'"]').hidden=!v);document.getElementById('modeSeg').classList.toggle('m5',v);
-  if(!v&&(G.selMode==='duel'||G.selMode==='coop')){G.selMode='ffa';document.querySelectorAll('#modeSeg button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v==='ffa'));}
-  document.querySelectorAll('#playerSeg button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v!=='net'&&(x.dataset.v==='2')===v));refreshPick();updDesc();
-  document.getElementById('howto').textContent=v?'2P GUIDE':'HOW TO PLAY';}
-document.querySelectorAll('#playerSeg button').forEach(b=>b.onclick=()=>{sfx('pick');if(b.dataset.v==='net'){openNet('home');return;}setTwo(b.dataset.v==='2');});
-document.querySelectorAll('#pickSeg button').forEach(b=>b.onclick=()=>{sfx('pick');G.picker=+b.dataset.v;refreshPick();});
-const KEYS1=document.querySelector('.keys:not(.padkeys)').innerHTML,KEYS2='P1 <kbd>WASD</kbd> <kbd>J</kbd><kbd>K</kbd><kbd>L</kbd> · P2 <kbd>ARROWS</kbd> <kbd>,</kbd><kbd>.</kbd><kbd>/</kbd>';
+  d.textContent=MODE_DESC[G.selMode];}
+// duel and co-op need more than one human, so they only show online
+function setOnline(on){document.getElementById('menu').classList.toggle('two',on);
+  document.querySelector('#modeSeg [data-v="duel"]').hidden=!on;document.getElementById('modeSeg').classList.toggle('m5',on);document.getElementById('modeSeg').classList.toggle('four',!on);
+  if(!on&&G.selMode==='duel'){G.selMode='ffa';document.querySelectorAll('#modeSeg button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v==='ffa'));}
+  markPlayerRow();refreshPick();updDesc();}
+// ONLINE stays lit from the moment a room is opened or joined
+function markPlayerRow(){const net=NET.state!=='off';document.querySelectorAll('#playerSeg button').forEach(x=>x.setAttribute('aria-pressed',(x.dataset.v==='net')===net));}
+document.querySelectorAll('#playerSeg button').forEach(b=>b.onclick=()=>{sfx('pick');if(b.dataset.v==='net'){openNet('home');return;}if(NET.state!=='off')netLeave();else setOnline(false);});
+const KEYS1=document.querySelector('.keys:not(.padkeys)').innerHTML;
 refreshPick();
 function unlockAudio(hold){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();sfxBus=AC.createGain();musMaster=AC.createGain();const lim=AC.createDynamicsCompressor();
   lim.threshold.value=-12;lim.knee.value=8;lim.ratio.value=12;lim.attack.value=.003;lim.release.value=.25;lim.connect(AC.destination);
@@ -2045,15 +2011,43 @@ seg('diffSeg','selDiff');
 document.getElementById('tMus').onclick=()=>{unlockAudio();musicOn=!musicOn;applyAudio();};
 document.getElementById('tFx').onclick=()=>{unlockAudio();sfxOn=!sfxOn;applyAudio();};
 applyAudio();
-function demo(){kcStop();kcReset();$('awards').hidden=true;G.online=false;G.fighters&&G.fighters.forEach(f=>{f.boss=false;});G.netGuest=false;NET.rec=false;document.body.classList.remove('netguest');if(G.guide){G.guide=null;document.getElementById('guide2').hidden=true;document.body.classList.remove('g2');}G.two=false;G.coop=false;document.body.classList.remove('two');document.querySelector('.keys:not(.padkeys)').innerHTML=KEYS1;G.mode='ffa';G.diff='normal';G.fighters=CHARS.map((_,i)=>i).sort(()=>Math.random()-.5).slice(0,4).map((ci,i)=>newFighter(ci,false,i));G.round=0;G.demo=true;resetRound();G.state='fight';}
+function demo(){kcStop();kcReset();$('awards').hidden=true;G.online=false;G.fighters&&G.fighters.forEach(f=>{f.boss=false;});G.netGuest=false;NET.rec=false;document.body.classList.remove('netguest');G.two=false;G.coop=false;document.body.classList.remove('two');document.querySelector('.keys:not(.padkeys)').innerHTML=KEYS1;G.mode='ffa';G.diff='normal';G.fighters=CHARS.map((_,i)=>i).sort(()=>Math.random()-.5).slice(0,4).map((ci,i)=>newFighter(ci,false,i));G.round=0;G.demo=true;resetRound();G.state='fight';}
 document.getElementById('go').onclick=()=>{unlockAudio();if(netIsGuest()){netToggleReady();return;}
   if(NET.role==='host'&&NET.state!=='off'){if(!NET.peers.some(p=>p.state==='on')){sfx('block');flash('WAITING FOR FRIENDS TO JOIN',2000);return;}
     if(!netAllReady()){sfx('block');flash('WAITING FOR '+NET.peers.filter(p=>p.state==='on'&&!p.ready).map(p=>PN(p.pn)).join(', ')+' TO BE READY',2200);return;}}document.getElementById('menu').hidden=true;startMatch();};
 // online, only the host restarts or sends everyone back to the lobby
-function hostOnlySync(){const g=!!G.netGuest;['again','tomenu','pQuit','awGo'].forEach(id=>{document.getElementById(id).disabled=g;});document.getElementById('hostWait').hidden=!g;document.getElementById('awWait').hidden=!g;}
+function hostOnlySync(){const g=!!G.netGuest;['again','tomenu','pQuit','awGo','nextBoss'].forEach(id=>{document.getElementById(id).disabled=g;});document.getElementById('hostWait').hidden=!g;document.getElementById('awWait').hidden=!g;}
+document.getElementById('nextBoss').onclick=()=>{unlockAudio();if(G.netGuest)return;G.bossIx=Math.min(G.bossIx+1,BOSSES.length-1);
+  document.getElementById('over').hidden=true;document.getElementById('nextBoss').hidden=true;startMatch();};
 document.getElementById('again').onclick=()=>{unlockAudio();if(G.netGuest)return;document.getElementById('over').hidden=true;G.fighters.forEach(f=>f.score=0);G.round=0;updateHud();resetRound();};
 document.getElementById('tomenu').onclick=()=>{if(G.netGuest)return;if(G.online){netToLobby(true);return;}document.getElementById('over').hidden=true;document.getElementById('menu').hidden=false;document.getElementById('hud').innerHTML='';demo();};
 
+// ---- labels: every button in a row shares one size, set by the longest label in that row ----
+// (mixed sizes side by side look ragged, so the row shrinks together; ... only if even the floor is too small)
+const FIT_SETS=[['.seg','button'],['#hud','.nm'],['.ctarow','.cta'],['#pause','.cta'],['#over','.cta'],
+  ['#awards','.cta'],['#itemGuide','.cta'],['.netbox','.cta'],['#igList','b'],['#awList','b']];
+const FIT_MIN=4,FIT_STEP=.5,fitRange=document.createRange();
+const fitW=el=>{fitRange.selectNodeContents(el);return fitRange.getBoundingClientRect().width;};
+function fitRoom(el){const cs=getComputedStyle(el);return el.clientWidth-(parseFloat(cs.paddingLeft)||0)-(parseFloat(cs.paddingRight)||0)-1.2;}
+function fitSet(box,sel){const els=[];
+  box.querySelectorAll(sel).forEach(el=>{if(el.firstChild)el.style.fontSize='';if(el.firstChild&&el.clientWidth>0)els.push(el);});
+  if(!els.length)return;
+  const base=els.map(el=>parseFloat(getComputedStyle(el).fontSize)||0);
+  let r=1;els.forEach((el,i)=>{const room=fitRoom(el);if(room>0){const w=fitW(el);if(w>room)r=Math.min(r,room/w);}});
+  if(r>=.999)return;
+  const put=k=>els.forEach((el,i)=>{el.style.fontSize=Math.max(FIT_MIN,Math.floor(base[i]*k/FIT_STEP)*FIT_STEP).toFixed(2)+'px';});
+  put(r);
+  for(let n=0;n<5;n++){let over=false;els.forEach(el=>{const room=fitRoom(el);if(room>0&&fitW(el)>room)over=true;});
+    if(!over)break;r*=.94;put(r);}}
+let fitQ=0;
+function fitAll(){cancelAnimationFrame(fitQ);fitQ=requestAnimationFrame(()=>{
+  for(const[boxSel,sel]of FIT_SETS)document.querySelectorAll(boxSel).forEach(box=>fitSet(box,sel));});}
+addEventListener('resize',fitAll);addEventListener('orientationchange',fitAll);
+try{if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitAll);}catch(e){}
+{const mo=new MutationObserver(fitAll);
+  for(const id of['menu','over','pause','awards','itemGuide','hud','netPanel','netSlots']){const e=document.getElementById(id);if(!e)continue;
+    mo.observe(e,{childList:true,subtree:true,characterData:true});mo.observe(e,{attributes:true,attributeFilter:['hidden','class']});}}
+fitAll();
 // ---- item guide ----
 const GUIDE=[['crocs','CROCS x3','Your next 3 throws are Crocs: they keep their speed and ricochet off the walls.'],
   ['volley','SELIPAR x5','Your next throw fires 5 selipar in a fan.'],
@@ -2064,22 +2058,26 @@ const GUIDE=[['crocs','CROCS x3','Your next 3 throws are Crocs: they keep their 
   ['teh','TEH TARIK','Every foe gets dizzy and stumbles for 5 seconds.'],
   ['kerepek','KEREPEK','Your next throw is a chip bag that bursts into sharp kerepek.'],
   ['belacan','BELACAN','Not for grabbing! It lands, fizzes, then blows a stink cloud. Run!',1],
-  ['saga','PROTON SAGA','Not an item. It honks and flashes its lane yellow, then drives through. Get out of the way!',1]];
+  ['saga','PROTON SAGA','Not an item. It honks and flashes its lane yellow, then drives through. Get out of the way!',1],
+  ['boss0',BOSSES[0].name,'Boss, '+BOSSES[0].hp+' hearts. '+BOSSES[0].tip,1],
+  ['boss1',BOSSES[1].name,'Boss, '+BOSSES[1].hp+' hearts. '+BOSSES[1].tip,1],
+  ['boss2',BOSSES[2].name,'Boss, '+BOSSES[2].hp+' hearts. '+BOSSES[2].tip,1]];
 function buildGuide(){const box=document.getElementById('igList');if(box.childElementCount)return;
   for(const[k,name,line,bad]of GUIDE){const d=document.createElement('div');d.className='ig'+(bad?' bad':'');const c=document.createElement('canvas');c.width=c.height=26;const x=c.getContext('2d');
-    const sp=k==='crocs'?CROCS:k==='saga'?sagaSprite('s',0):ITEM_SPR[k],w=sp.rows[0].length,h=sp.rows.length,sc=w>14?1:2;
+    const bi=k.startsWith('boss')?+k.slice(4):-1;
+    const sp=bi>=0?CHARS[BOSSES[bi].ci]:k==='crocs'?CROCS:k==='saga'?sagaSprite('s',0):ITEM_SPR[k],w=sp.rows[0].length,h=sp.rows.length,sc=w>14?1:2;
     if(sc===1)drawSprite(x,sp,Math.round((26-w)/2),Math.round((26-h)/2),false);
     else{const t=document.createElement('canvas');t.width=w;t.height=h;drawSprite(t.getContext('2d'),sp,0,0,false);x.imageSmoothingEnabled=false;x.drawImage(t,Math.round(13-w),Math.round(13-h),w*2,h*2);}
-    const tx=document.createElement('div');const b=document.createElement('b');b.textContent=name;b.style.color=k==='saga'?'#ffc23d':PCOL[k];
-    if(bad){const e=document.createElement('em');e.textContent='DANGER';b.append(e);}
+    const tx=document.createElement('div');const b=document.createElement('b');b.textContent=name;b.style.color=bi>=0?CHARS[BOSSES[bi].ci].main:k==='saga'?'#ffc23d':PCOL[k];
+    if(bad){const e=document.createElement('em');e.textContent=bi>=0?'BOSS':'DANGER';b.append(e);}
     const sp2=document.createElement('span');sp2.textContent=line;tx.append(b,sp2);d.append(c,tx);box.append(d);}}
 function openGuide(){buildGuide();const g=document.getElementById('itemGuide');g.hidden=false;g.scrollTop=0;sfx('pick');}
 document.getElementById('itemsBtn').onclick=openGuide;document.getElementById('pItems').onclick=openGuide;
 document.getElementById('igBack').onclick=()=>{document.getElementById('itemGuide').hidden=true;};
 // ---- input ----
-const KEYACT={j:'throw',' ':'throw',k:'slash',l:'dash',shift:'dash'},KEYACT2={',':'throw','.':'slash','/':'dash','1':'throw','2':'slash','3':'dash'};
+const KEYACT={j:'throw',' ':'throw',k:'slash',l:'dash',shift:'dash'};
 addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;if(!document.getElementById('itemGuide').hidden){if(e.key==='Escape'||e.key==='Backspace'){document.getElementById('itemGuide').hidden=true;e.preventDefault();}return;}if(!document.getElementById('installHelp').hidden){if(e.key==='Escape'||e.key==='Enter')closeInstallHelp();e.preventDefault();return;}if(I.active){e.preventDefault();if(!e.repeat)introSkip();return;}const k=e.key.toLowerCase();if((k==='p'||k==='escape')&&!e.repeat&&(G.paused||canPause())){e.preventDefault();setPause(!G.paused);return;}if(G.paused)return;if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
-  input.keys[k]=true;if(!e.repeat){if(G.two&&!G.online&&KEYACT2[k])input2.q[KEYACT2[k]]=true;else if(KEYACT[k])input.q[KEYACT[k]]=true;}});
+  input.keys[k]=true;if(!e.repeat&&KEYACT[k])input.q[KEYACT[k]]=true;});
 addEventListener('keyup',e=>{input.keys[e.key.toLowerCase()]=false;});
 addEventListener('blur',()=>{input.keys={};});
 function bindControls(c,ip,flip){const stick=c.querySelector('.stick'),knob=c.querySelector('.knob');let sid=null;
@@ -2094,7 +2092,6 @@ function bindControls(c,ip,flip){const stick=c.querySelector('.stick'),knob=c.qu
     ['pointerup','pointerleave','pointercancel'].forEach(t=>b.addEventListener(t,()=>b.classList.remove('down')));b.addEventListener('contextmenu',e=>e.preventDefault());});
   c.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});}
 bindControls(document.getElementById('controls'),input,false);
-bindControls(document.getElementById('controls2'),input2,true);
 
 // ---- intro: four snacks, one by one, then the title ----
 const I={active:true,t:0,parts:[],shake:0};
@@ -2170,13 +2167,12 @@ function loop(now){acc+=Math.min(100,now-last);last=now;pollPads();
   while(acc>=1000/60){
     if(G.netGuest)netGuestFrame();
     else if(I.active)stepIntro();
-    else if(G.paused||G.netHold||(G.two&&!G.online&&mqLand.matches&&!document.body.classList.contains('pad'))){}
-    else if(G.guide)guideTick();
+    else if(G.paused||G.netHold){}
     else if(!(G.slow>0&&G.slow--%3!==0)){if(G.demo&&G.state==='intro')G.state='fight';step();}
     acc-=1000/60;}
   {const hide=!canPause()||!!G.paused;if(pauseBtn.hidden!==hide)pauseBtn.hidden=hide;}
   {const hide=!(I.active&&!I.loadT)||isStandalone();if(installBtn.hidden!==hide)installBtn.hidden=hide;}
-  if(swWaiting&&!canPause()&&!G.guide&&!G.tutorial&&NET.state==='off')applyUpdate();
+  if(swWaiting&&!canPause()&&!G.tutorial&&NET.state==='off')applyUpdate();
   netTick();
   if(I.active)renderIntro();else if(KC.on)kcDraw(now);else if(!(G.netGuest&&!NET.cur)){render();kcRecord();}requestAnimationFrame(loop);}
 document.fonts&&document.fonts.load('8px "Press Start 2P"').catch(()=>{});
