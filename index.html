@@ -221,7 +221,9 @@ body.netguest #pRestart{display:none}
 .ig span{display:block;font-size:15px;line-height:1.05;color:var(--ink,#f4ead8)}
 .ig em{font-style:normal;font-family:var(--display);font-size:6px;color:#ff5a5f;margin-left:4px}
 /* portrait phones: keep the whole menu, FIGHT included, on one screen */
-@media (orientation:portrait){#menu .seg button{padding:3px 2px}#musSeg{grid-template-columns:repeat(6,minmax(0,1fr))}#musSeg button{padding:4px 0}}
+@media (orientation:portrait){#menu .seg button{padding:3px 2px}
+  /* the music row flows onto a second line on a very narrow phone instead of shrinking to nothing */
+  #musSeg{display:flex;flex-wrap:wrap;gap:3px}#musSeg button{flex:1 1 auto;min-width:0;padding:4px 3px}}
 #hostWait,.hostwait{font-family:var(--display);font-size:7px;color:var(--dim);margin:0}
 #awGo:disabled,#over button:disabled,#pQuit:disabled{opacity:.35;cursor:not-allowed}
 .opts{display:flex;flex-direction:column;gap:6px;width:100%;max-width:340px}
@@ -292,7 +294,7 @@ body.netguest #pRestart{display:none}
         <div class="optrow" id="teamRow" hidden><span>TEAM</span><div class="seg two-col" id="teamSeg"><button type="button" data-v="0" aria-pressed="false">RED</button><button type="button" data-v="1" aria-pressed="false">BLUE</button></div></div>
         <div class="optrow"><span>LEVEL</span><div class="seg" id="diffSeg"><button type="button" data-v="easy" aria-pressed="false">KACANG</button><button type="button" data-v="normal" aria-pressed="true">BIASA</button><button type="button" data-v="makcik" aria-pressed="false">NGERI</button></div></div>
         <div class="optrow"><span>STYLE</span><div class="seg five nine" id="styleSeg"></div></div>
-        <div class="optrow"><span>MUSIC</span><div class="seg three" id="musSeg"><button type="button" data-v="arcade" aria-pressed="true">ARCADE</button><button type="button" data-v="gamelan" aria-pressed="false">GAMELAN</button><button type="button" data-v="dikir" aria-pressed="false">DIKIR</button><button type="button" data-v="raya" aria-pressed="false">RAYA</button><button type="button" data-v="seram" aria-pressed="false">SERAM</button><button type="button" data-v="hantu" aria-pressed="false">HANTU</button></div></div>
+        <div class="optrow"><span>MUSIC</span><div class="seg three" id="musSeg"><button type="button" data-v="arcade" aria-pressed="true">ARCADE</button><button type="button" data-v="gamelan" aria-pressed="false">GAMELAN</button><button type="button" data-v="dikir" aria-pressed="false">DIKIR</button><button type="button" data-v="dysphoria" aria-pressed="false">DYSPHORIA</button><button type="button" data-v="seram" aria-pressed="false">SERAM</button><button type="button" data-v="hantu" aria-pressed="false">HANTU</button></div></div>
       </div>
       <p id="modeDesc">Last snack standing wins the round. First to 5.</p>
       <div class="ctarow"><button class="cta alt" id="howto" type="button">HOW TO PLAY</button><button class="cta alt" id="itemsBtn" type="button">ITEMS</button><button class="cta" id="go" type="button">FIGHT</button></div>
@@ -753,17 +755,61 @@ function makeKit(ac,bus){
   const hold=(seq,i)=>{let n=1;while(seq[(i+n)%seq.length]===-1&&n<24)n++;return n;};
   return{mf,mo,nz,violin,accordion,pulse,pluck,dum,tak,pak,bung,shk,jingle,gong,clap,hold};}
 
-// ---------- A: JOGET KLASIK (6/8, violin lead, accordion, rebana, kompang) ----------
-const A_MEL=[74,-1,72,71,72,74, 76,-1,-1,74,-1,-1, 72,-1,71,69,71,72, 74,-1,-1,0,0,67, 69,-1,71,72,-1,74, 71,-1,69,67,-1,64, 66,-1,67,69,-1,71, 69,-1,-1,-1,0,0,
-  74,-1,72,71,72,74, 79,-1,-1,78,-1,76, 74,-1,72,71,-1,72, 74,-1,-1,0,71,72, 74,-1,76,74,-1,72, 71,-1,69,67,-1,69, 71,-1,69,66,-1,69, 67,-1,-1,-1,0,0];
-const A_CH=[[43,0],[48,0],[48,0],[43,0],[50,0],[40,1],[50,0],[50,0],[43,0],[40,1],[48,0],[43,0],[48,0],[43,0],[50,0],[43,0]];
-function trackA(K){return{step:.155,len:96,play(i,t){const S=.155,bar=(i/6|0)%16,k=i%6,[r,mn]=A_CH[bar],tri=[0,mn?3:4,7];
-  const n=A_MEL[i];if(n>0)K.violin(n,t,S*K.hold(A_MEL,i)*.95,.06);
-  if(n>0&&bar>=8)K.accordion(n-12,t,S*K.hold(A_MEL,i)*.9,.012);
-  if(k===0)K.pluck(r,t,S*2.6,.12);if(k===3)K.pluck(r+7,t,S*2.6,.1);
-  if(k===1||k===2||k===4||k===5)for(const d of tri)K.accordion(r+24+d,t,S*.55,.008);
-  if(k===0||k===3)K.dum(t,.15);if(k===2||k===5)K.tak(t,.08);if(k===1||k===4)K.pak(t,.06);if(k===3)K.jingle(t,.03);K.shk(t,.018);
-  if(i%48===0)K.gong(t,.09);}};}
+// ---------- DYSPHORIA: a lonely whistle in a long echo, cold pad, bells answering from far off ----------
+function mysteryKit(ac,bus,K){
+  const mf=K.mf;
+  function env(g,t,dur,vol,att,rel){g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol,t+att);
+    g.gain.setValueAtTime(vol,t+Math.max(att+.01,dur-rel));g.gain.exponentialRampToValueAtTime(.0001,t+dur+.05);}
+  // the whistle: a pure tone that slides into each note and wavers, the way a person whistles
+  function whistle(m,t,dur,vol,from){const o=ac.createOscillator(),g=ac.createGain(),l=ac.createOscillator(),lg=ac.createGain(),f=mf(m);
+    o.type='sine';o.frequency.setValueAtTime(from?mf(from):f*.94,t);o.frequency.exponentialRampToValueAtTime(f,t+Math.min(.16,dur*.35));
+    l.frequency.value=5.2;lg.gain.setValueAtTime(0,t);lg.gain.linearRampToValueAtTime(f*.009,t+Math.min(.5,dur*.6));l.connect(lg).connect(o.frequency);
+    env(g,t,dur,vol,.09,.18);o.connect(g).connect(bus);
+    // a breathy shimmer an octave up keeps it from sounding like a plain beep
+    const o2=ac.createOscillator(),g2=ac.createGain();o2.type='sine';o2.frequency.setValueAtTime(f*2,t);env(g2,t,dur,vol*.14,.12,.2);o2.connect(g2).connect(bus);
+    o.start(t);l.start(t);o2.start(t);o.stop(t+dur+.2);l.stop(t+dur+.2);o2.stop(t+dur+.2);}
+  // cold string pad
+  function pad(m,t,dur,vol){const g=ac.createGain(),lp=ac.createBiquadFilter();lp.type='lowpass';
+    lp.frequency.setValueAtTime(600,t);lp.frequency.linearRampToValueAtTime(1500,t+dur*.5);lp.frequency.linearRampToValueAtTime(600,t+dur);
+    for(const d of[-7,0,7]){const o=ac.createOscillator();o.type='sawtooth';o.frequency.value=mf(m);o.detune.value=d;o.connect(lp);o.start(t);o.stop(t+dur+.2);}
+    env(g,t,dur,vol,dur*.3,dur*.35);lp.connect(g).connect(bus);}
+  // bell-like pluck, the kind that answers the whistle from far away
+  function pluck(m,t,vol){const o=ac.createOscillator(),g=ac.createGain(),f=mf(m);o.type='triangle';o.frequency.value=f;
+    g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol,t+.004);g.gain.exponentialRampToValueAtTime(.0001,t+.9);
+    o.connect(g).connect(bus);o.start(t);o.stop(t+.95);
+    const o2=ac.createOscillator(),g2=ac.createGain();o2.type='sine';o2.frequency.value=f*3.01;
+    g2.gain.setValueAtTime(vol*.3,t);g2.gain.exponentialRampToValueAtTime(.0001,t+.3);o2.connect(g2).connect(bus);o2.start(t);o2.stop(t+.35);}
+  const sub=(t,vol)=>{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.setValueAtTime(70,t);o.frequency.exponentialRampToValueAtTime(42,t+.5);
+    g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+.6);o.connect(g).connect(bus);o.start(t);o.stop(t+.65);};
+  function air(t,dur,vol,up){const n=ac.sampleRate*dur|0,b=ac.createBuffer(1,n,ac.sampleRate),d=b.getChannelData(0);
+    for(let i=0;i<n;i++)d[i]=Math.random()*2-1;
+    const s=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();s.buffer=b;f.type='bandpass';f.Q.value=7;
+    f.frequency.setValueAtTime(up?500:2600,t);f.frequency.exponentialRampToValueAtTime(up?2600:500,t+dur);
+    env(g,t,dur,vol,dur*.45,dur*.45);s.connect(f).connect(g).connect(bus);s.start(t);s.stop(t+dur+.05);}
+  return{whistle,pad,pluck,sub,air};}
+
+// 16 bars of 4 beats; step = one eighth note
+const MY_CH=[[57,'m'],[57,'m'],[53,'M'],[53,'M'],[55,'M'],[55,'M'],[52,'m'],[52,'m'],
+             [57,'m'],[57,'m'],[50,'m'],[50,'m'],[53,'M'],[55,'M'],[57,'m'],[55,'M']];
+const TRI={m:[0,3,7],M:[0,4,7]};
+// the whistle tune: long notes, lots of space, answered by its own echo
+const MY_MEL=[
+ 76,-1,-1,-1, 79,-1,-1,-1, 76,-1,-1,-1, -1,-1,-1,-1,
+ 72,-1,-1,-1, 74,-1,76,-1, 72,-1,-1,-1, -1,-1,-1,-1,
+ 79,-1,-1,-1, 83,-1,-1,-1, 81,-1,79,-1, 76,-1,-1,-1,
+ 77,-1,-1,-1, 76,-1,74,-1, 72,-1,-1,-1, -1,-1,-1,-1,
+ 76,-1,-1,-1, 81,-1,-1,-1, 79,-1,-1,-1, -1,-1,-1,-1,
+ 74,-1,76,-1, 77,-1,-1,-1, 76,-1,-1,-1, -1,-1,-1,-1,
+ 84,-1,-1,-1, 83,-1,81,-1, 79,-1,-1,-1, 76,-1,-1,-1,
+ 74,-1,-1,-1, 72,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1];
+function trackDys(K,M){return{step:.3125,len:128,play(i,t){const S=.3125,bar=i>>3,k=i%8,[root,q]=MY_CH[bar%16],tri=TRI[q];
+  const n=MY_MEL[i];if(n>0)M.whistle(n,t,S*K.hold(MY_MEL,i)*.9,.085,MY_MEL[i-2]>0?MY_MEL[i-2]:0);
+  if(k===0){M.pad(root-12,t,S*8.4,.035);M.pad(root+tri[2]-12,t,S*8.4,.022);}
+  if(k===0)M.sub(t,.14);
+  if(k===2||k===6)M.pluck(root+12+tri[(bar+k)%3],t,.05);
+  if(k===4&&bar%2===1)M.pluck(root+24+tri[(bar>>1)%3],t,.028);
+  if(bar%4===3&&k===6)M.air(t,1.6,.045,true);
+  if(bar%8===7&&k===4)M.air(t,2.2,.05,false);}};}
 
 function horrorKit(ac,bus,K){
   const mf=K.mf;
@@ -824,23 +870,25 @@ function trackHantu(K,H){return{step:.11,len:256,play(i,t){const S=.11,bar=i>>4,
   if((bar===7||bar===11)&&k===8)K.mo('square',K.mf(r+30),t,S*6,.02,K.mf(r+18));
   if(bar===15&&k===8)K.mo('square',K.mf(r+12),t,S*8,.018,K.mf(r+48));}};}
 // kits follow whichever bus the current track is playing into
-let KIT=null;function kit(){if(!KIT||KIT.bus!==musBus){const K=makeKit(AC,musBus);KIT={bus:musBus,K,H:horrorKit(AC,musBus,K)};}return KIT;}
-const playRaya=(i,t)=>{const k=kit();trackA(k.K).play(i,t);};
+let KIT=null;function kit(){if(!KIT||KIT.bus!==musBus){const K=makeKit(AC,musBus);KIT={bus:musBus,K,H:horrorKit(AC,musBus,K),M:mysteryKit(AC,musBus,K)};}return KIT;}
+const playDys=(i,t)=>{const k=kit();trackDys(k.K,k.M).play(i,t);};
 const playSeram=(i,t)=>{const k=kit();trackH1(k.K,k.H).play(i,t);};
 const playHantu=(i,t)=>{const k=kit();trackHantu(k.K,k.H).play(i,t);};
-const TRACKS={arcade:{step:STEP,len:64,play:playStep},gamelan:{step:GAM_STEP,len:64,play:playGamelan},dikir:{step:DK_STEP,len:64,play:playDikir},raya:{step:.155,len:96,play:playRaya},
-  seram:{step:.3,len:96,play:playSeram,echo:true},hantu:{step:.11,len:256,play:playHantu}};
+const TRACKS={arcade:{step:STEP,len:64,play:playStep},gamelan:{step:GAM_STEP,len:64,play:playGamelan},dikir:{step:DK_STEP,len:64,play:playDikir},dysphoria:{step:.3125,len:128,play:playDys,echo:{t:.47,fb:.46,lp:2600,wet:.42}},
+  seram:{step:.3,len:96,play:playSeram,echo:{t:.17,fb:.35,lp:2500,wet:.3}},hantu:{step:.11,len:256,play:playHantu}};
 // music level per track, evened out so every track plays at the same (louder) level; a limiter on the output stops crackle
-const TRACK_VOL={arcade:6.2,gamelan:2.05,dikir:1.9,raya:1.8,seram:1.8,hantu:2.0},SFX_GAIN=2.2;
-const TRACK_NAME={arcade:'ARCADE',gamelan:'GAMELAN',dikir:'DIKIR BARAT',raya:'RAYA'};
-const TRACK_LINE={arcade:'Music: Arcade. Classic chiptune.',gamelan:'Music: Gamelan. Bronze gongs, bonang and kendang.',dikir:'Music: Dikir Barat. Call, answer, rebana and clapping.',raya:'Music: Raya. A classic joget with violin, accordion and rebana.',
+const TRACK_VOL={arcade:6.2,gamelan:2.05,dikir:1.9,dysphoria:1.25,seram:1.8,hantu:1.9},SFX_GAIN=2.2;
+const TRACK_NAME={arcade:'ARCADE',gamelan:'GAMELAN',dikir:'DIKIR BARAT',dysphoria:'DYSPHORIA',seram:'SERAM',hantu:'HANTU'};
+const TRACK_LINE={arcade:'Music: Arcade. Classic chiptune.',gamelan:'Music: Gamelan. Bronze gongs, bonang and kendang.',dikir:'Music: Dikir Barat. Call, answer, rebana and clapping.',dysphoria:'Music: Dysphoria. A lonely whistle lost in a long echo.',
   seram:'Music: Seram. A creepy music-box lullaby in the dark kampung.',hantu:'Music: Hantu. An 8-bit ghost chase.'};
 let TRACK='arcade';try{TRACK=localStorage.getItem('sr-music')||'arcade';}catch(e){}if(!TRACKS[TRACK])TRACK='arcade';
 // each track plays into its own bus; switching fades the old one out and (for Seram) adds a little echo
 function newMusBus(){if(!AC||!musMaster)return;const old=musBus;
   if(old){const t=AC.currentTime;old.gain.setValueAtTime(old.gain.value,t);old.gain.linearRampToValueAtTime(0,t+.25);setTimeout(()=>{try{old.disconnect();}catch(e){}},600);}
   musBus=AC.createGain();musBus.connect(musMaster);
-  if(TRACKS[TRACK].echo){const dl=AC.createDelay(),fb=AC.createGain(),lp=AC.createBiquadFilter(),wet=AC.createGain();dl.delayTime.value=.17;fb.gain.value=.35;lp.type='lowpass';lp.frequency.value=2500;wet.gain.value=.3;
+  const e=TRACKS[TRACK].echo;
+  if(e){const dl=AC.createDelay(1.5),fb=AC.createGain(),lp=AC.createBiquadFilter(),wet=AC.createGain();
+    dl.delayTime.value=e.t;fb.gain.value=e.fb;lp.type='lowpass';lp.frequency.value=e.lp;wet.gain.value=e.wet;
     musBus.connect(dl);dl.connect(lp).connect(fb).connect(dl);lp.connect(wet).connect(musMaster);}}
 function setTrack(k){if(!TRACKS[k])return;const ch=k!==TRACK;TRACK=k;mStep=0;if(ch)newMusBus();if(AC)mNext=Math.max(mNext,AC.currentTime+.05);try{localStorage.setItem('sr-music',k);}catch(e){}applyAudio();}
 function startMusic(){if(mTimer||!AC)return;const n=AC.sampleRate*.03|0;hatBuf=AC.createBuffer(1,n,AC.sampleRate);const d=hatBuf.getChannelData(0);
@@ -1560,7 +1608,7 @@ document.getElementById('pRestart').onclick=()=>{setPause(false);G.fighters.forE
 document.getElementById('pQuit').onclick=()=>{if(G.netGuest)return;if(G.online){setPause(false);netToLobby(true);return;}setPause(false);document.getElementById('hud').innerHTML='';document.getElementById('menu').hidden=false;demo();};
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&canPause()&&!G.paused)setPause(true);});
 // ---- install as an app, and pick up new versions automatically ----
-const APP_VERSION='2.5.3';
+const APP_VERSION='2.6';
 // running as an installed app? Installed web apps can report any of these display modes; the app's start link also carries ?source=app
 let launchedAsApp=/[?&]source=app\b/.test(location.search),justInstalled=false;
 try{if(launchedAsApp)sessionStorage.setItem('sr-app','1');else launchedAsApp=sessionStorage.getItem('sr-app')==='1';}catch(e){}

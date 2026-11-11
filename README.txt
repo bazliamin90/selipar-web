@@ -1,4 +1,4 @@
-SELIPAR RUMBLE v2.5.3 - installable web app
+SELIPAR RUMBLE v2.6 - installable web app
 
 PUT IT ONLINE (free, about 2 minutes)
 1. Go to https://app.netlify.com/drop and drag this whole folder onto the page.
